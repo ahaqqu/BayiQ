@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(mkdir:*)",
+      "Shell(cp:*)",
+      "Shell(node --check js/data.js)",
+      "Shell(node --check js/i18n.js)",
+      "Shell(node --check js/app.js)",
+      "Shell(python3 -m http.server 8765 --bind 127.0.0.1)",
+      "Shell(for f in index.html css/style.css js/data.js js/i18n.js js/app.js docs/imunisasi/jadwal-vaksin.jpg; do printf \"%-35s %s\\n\" \"$f\" \"$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8765/$f)\"; done)",
+      "Shell(node -e \" const fs = require('fs'); eval(fs.readFileSync('js/data.js', 'utf8')); const colSet = new Set(AGE_COLUMNS.map(c => c.months)); let errors = []; if (AGE_COLUMNS.length !== 26) errors.push('expected 26 age columns, got ' + AGE_COLUMNS.length); if (VACCINES.length !== 18) errors.push('expected 18 vaccines, got ' + VACCINES.length); VACCINES.forEach(v => v.doses.forEach(d => { if (!colSet.has(d.months)) errors.push(v.id + ' dose ' + d.code + ' has invalid months ' + d.months); })); const keys = Object.keys(I18N.id), enKeys = Object.keys(I18N.en); const missing = keys.filter(k => !enKeys.includes(k)); if (missing.length) errors.push('EN missing keys: ' + missing.join(',')); const totalDoses = VACCINES.reduce((n, v) => n + v.doses.length, 0); console.log('vaccines:', VACCINES.length, '| total dose cells:', totalDoses, '| i18n keys:', keys.length); console.log(errors.length ? 'ERRORS:\\n' + errors.join('\\n') : 'DATA OK'); \")",
+      "Shell(node -e \" const fs = require('fs'); const code = fs.readFileSync('js/data.js', 'utf8'); const test = code + \\` const colSet = new Set(AGE_COLUMNS.map(c => c.months)); let errors = []; if (AGE_COLUMNS.length !== 26) errors.push('expected 26 age columns, got ' + AGE_COLUMNS.length); if (VACCINES.length !== 18) errors.push('expected 18 vaccines, got ' + VACCINES.length); VACCINES.forEach(v => v.doses.forEach(d => { if (!colSet.has(d.months)) errors.push(v.id + ' dose ' + d.code + ' has invalid months ' + d.months); })); const missing = Object.keys(I18N.id).filter(k => !(k in I18N.en)); if (missing.length) errors.push('EN missing keys: ' + missing.join(',')); const totalDoses = VACCINES.reduce((n, v) => n + v.doses.length, 0); console.log('vaccines:', VACCINES.length, '| total dose cells:', totalDoses, '| i18n keys:', Object.keys(I18N.id).length); console.log(errors.length ? 'ERRORS:\\\\\\\\n' + errors.join('\\\\\\\\n') : 'DATA OK'); \\`; eval(test); \")",
+      "Shell(agent-browser:*)",
+      "Shell(grep:*)",
+      "Shell(kill:*)"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}
