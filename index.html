@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BabyQ — Jadwal & Catatan Imunisasi Anak</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ===================== AUTH VIEW ===================== -->
+  <div id="view-auth" class="hidden">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <h1>BabyQ</h1>
+        <p data-i18n="tagline">Jadwal & catatan imunisasi anak</p>
+      </div>
+
+      <button id="btn-google" class="btn-google" type="button">
+        <span class="g-icon"></span>
+        <span data-i18n="continueGoogle">Lanjutkan dengan Google</span>
+      </button>
+
+      <div class="auth-divider"><span data-i18n="or">atau</span></div>
+
+      <form id="form-login">
+        <label><span data-i18n="email">Email</span>
+          <input type="email" id="login-email" required autocomplete="email">
+        </label>
+        <label><span data-i18n="password">Kata sandi</span>
+          <input type="password" id="login-password" required autocomplete="current-password">
+        </label>
+        <button type="submit" class="btn primary" data-i18n="login">Masuk</button>
+        <p class="auth-switch"><a href="#" id="show-signup" data-i18n="noAccount">Belum punya akun? Daftar</a></p>
+      </form>
+
+      <form id="form-signup" class="hidden">
+        <label><span data-i18n="fullName">Nama lengkap</span>
+          <input type="text" id="signup-name" required autocomplete="name">
+        </label>
+        <label><span data-i18n="email">Email</span>
+          <input type="email" id="signup-email" required autocomplete="email">
+        </label>
+        <label><span data-i18n="password">Kata sandi</span>
+          <input type="password" id="signup-password" required autocomplete="new-password">
+        </label>
+        <button type="submit" class="btn primary" data-i18n="signup">Daftar</button>
+        <p class="auth-switch"><a href="#" id="show-login" data-i18n="haveAccount">Sudah punya akun? Masuk</a></p>
+      </form>
+
+      <p id="auth-error"></p>
+    </div>
+  </div>
+
+  <!-- ===================== APP VIEW ===================== -->
+  <div id="view-app" class="hidden">
+    <header class="app-header">
+      <div class="app-logo">
+        <h1>BabyQ</h1>
+        <p data-i18n="tagline">Jadwal & catatan imunisasi anak</p>
+      </div>
+      <div class="header-spacer"></div>
+      <button id="lang-toggle" type="button">EN</button>
+      <div class="notif-wrap">
+        <button id="btn-notif" type="button" aria-label="Notifikasi">
+          🔔
+          <span id="notif-badge" class="hidden">0</span>
+        </button>
+        <div id="notif-panel" class="hidden">
+          <h3 data-i18n="notifications">Notifikasi</h3>
+          <div id="notif-list"></div>
+        </div>
+      </div>
+      <div class="user-chip">
+        <span id="user-name"></span>
+        <button id="btn-logout" class="btn ghost small" type="button" data-i18n="logout">Keluar</button>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <div id="child-tabs"></div>
+
+      <div id="onboarding" class="hidden">
+        <h2 data-i18n="welcomeTitle">Selamat datang di BabyQ!</h2>
+        <p data-i18n="welcomeText">Mulai dengan menambahkan data anak Anda untuk melihat jadwal imunisasinya.</p>
+        <div class="onboarding-actions">
+          <button id="btn-add-first-child" class="btn primary" type="button" data-i18n="addChild">Tambah anak</button>
+          <button id="btn-sample-data" class="btn ghost" type="button" data-i18n="sampleData">Muat data contoh</button>
+        </div>
+      </div>
+
+      <div id="schedule-area" class="hidden">
+        <div id="child-info"></div>
+
+        <h2 id="schedule-title"></h2>
+        <p id="schedule-subtitle"></p>
+        <p class="hint" data-i18n="clickCellHint">Klik sel untuk mencatat pemberian vaksin</p>
+
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch lg-done"></span><span data-i18n="statusDone">Selesai</span></span>
+          <span class="legend-item"><span class="legend-swatch lg-due"></span><span data-i18n="statusDue">Jatuh tempo</span></span>
+          <span class="legend-item"><span class="legend-swatch lg-overdue"></span><span data-i18n="statusOverdue">Terlambat</span></span>
+          <span class="legend-item"><span class="legend-swatch lg-upcoming"></span><span data-i18n="statusUpcoming">Akan datang</span></span>
+        </div>
+
+        <div id="schedule-controls"></div>
+
+        <div class="schedule-scroll">
+          <div id="schedule-grid"></div>
+        </div>
+
+        <p id="footer-note"></p>
+      </div>
+    </main>
+  </div>
+
+  <!-- ===================== MODAL & TOOLTIP ===================== -->
+  <div id="modal-overlay" class="hidden">
+    <div id="modal-card">
+      <div id="modal-body"></div>
+    </div>
+  </div>
+  <div id="tooltip" class="hidden"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
