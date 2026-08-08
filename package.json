@@ -1,0 +1,50 @@
+{
+  "name": "bayiq",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "echo 'No application yet. See docs/BOOTSTRAP_PROMPT.md'",
+    "build": "echo 'No application yet. See docs/BOOTSTRAP_PROMPT.md'",
+    "build:web": "echo 'No application yet. See docs/BOOTSTRAP_PROMPT.md'",
+    "check": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests",
+    "size-limit": "echo 'No application bundle yet. See docs/BOOTSTRAP_PROMPT.md'",
+    "agentic-limits": "bun scripts/check-agentic-limits.mjs",
+    "truth": "bun scripts/check-template-truth.mjs",
+    "openapi:check": "echo 'No OpenAPI yet. See docs/BOOTSTRAP_PROMPT.md'",
+    "e2e": "echo 'No E2E tests yet. See docs/BOOTSTRAP_PROMPT.md'",
+    "deploy": "echo 'No application to deploy yet. See docs/BOOTSTRAP_PROMPT.md'",
+    "deploy:staging": "echo 'No application to deploy yet. See docs/BOOTSTRAP_PROMPT.md'",
+    "deploy:temp": "echo 'No application to deploy yet. See docs/BOOTSTRAP_PROMPT.md'",
+    "db:migrate:local": "echo 'No database configured yet. See docs/BOOTSTRAP_PROMPT.md'",
+    "template-gate": "bun scripts/template-sync/cli.mjs check",
+    "template-sync": "bun scripts/template-sync/cli.mjs"
+  },
+  "overrides": {
+    "brace-expansion": "5.0.8"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.0",
+    "@size-limit/file": "13.0.2",
+    "@types/node": "26.1.2",
+    "@vitest/coverage-v8": "4.1.10",
+    "fast-check": "4.9.0",
+    "playwright-bdd": "9.2.0",
+    "size-limit": "13.0.2",
+    "typescript": "7.0.2",
+    "vitest": "4.1.10",
+    "wrangler": "4.115.0"
+  },
+  "size-limit": [
+    {
+      "name": "web-js",
+      "path": "apps/web/dist/assets/*.js",
+      "limit": "200 KB",
+      "gzip": true
+    }
+  ]
+}
