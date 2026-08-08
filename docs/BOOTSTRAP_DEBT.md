@@ -1,6 +1,6 @@
 # Bootstrap Debt
 
-Daftar sementara (suppress) dan perbaikan yang harus dilakukan agar semua gate template hijau sekarang, plus utang teknis yang muncul karena project ini masih scaffold tanpa aplikasi yang berjalan.
+Daftar sementara (suppress) dan perbaikan yang harus dilakukan agar semua gate template hijau, plus utang teknis yang muncul karena project ini sedang dalam migrasi dari prototype ke aplikasi nyata.
 
 > Lihat juga `docs/BOOTSTRAP_PROMPT.md` untuk checklist bootstrap resmi dari upstream template.
 
@@ -44,6 +44,18 @@ Catatan: `template-gate` saat ini melaporkan "no sync state found; run update to
 
 - Masih mengacu `http://127.0.0.1:8787` dan webServer wrangler. Saat ini E2E no-op. Nanti disesuaikan setelah API/web dibuat.
 
+## Keputusan arsitektur yang sudah direkam
+
+Keputusan berikut sudah disetujui dan direkam di `adr/`:
+
+| ADR | Topik | Status |
+|---|---|---|
+| ADR-001 | Anonymous D1 sessions, defer real OAuth/email | accepted |
+| ADR-002 | Static IDAI 2024 schedule with stable `doseId` | accepted |
+| ADR-003 | Local-first CRDT sync to D1 for anonymous sessions | accepted |
+| ADR-004 | Dense schedule table + optional list/card view | accepted |
+| ADR-005 | Build-time JSON i18n files | accepted |
+
 ## Keputusan sengaja yang menyimpang dari template
 
 1. **Hanya `packages/contracts` dan `packages/infra` yang dibuat sekarang**
@@ -60,12 +72,12 @@ Catatan: `template-gate` saat ini melaporkan "no sync state found; run update to
 
 | Area | Catatan | Milestone target |
 |---|---|---|
-| Domain model | Perlu ADR untuk `Child`, `Vaccine`, `Dose`, `Record`, `Schedule`, `Notification`, `User` | grill-with-docs |
-| Contracts | Schema Valibot untuk domain imunisasi belum ada | to-spec |
+| Domain model | `docs/GLOSSARY.md` dan ADRs sudah dibuat | grill-with-docs ✅ |
+| Contracts | Schema Valibot untuk domain imunisasi — akan dibuat saat implementasi | to-spec / guided-implementation |
 | Local-first | Mekanisme sync untuk catatan imunisasi, bukan Notes | packages/local-first rebuild |
-| DB schema | Migrations D1 untuk anak, pengguna, catatan vaksin | guided-implementation |
-| UI/UX | Migrasi tabel IDAI 2024 dari prototype ke React + Tailwind | guided-implementation |
-| i18n | Salin + perbaiki strings `id`/`en` dari `prototype/js/data.js` | guided-implementation |
+| DB schema | Migrations D1 untuk session, child, record snapshots | guided-implementation |
+| UI/UX | Migrasi tabel IDAI 2024 ke React + Tailwind + table/list toggle | guided-implementation |
+| i18n | Salin + perbaiki strings `id`/`en` dari `prototype/js/data.js` ke JSON | guided-implementation |
 | Auth | Anonymous session saat ini, bisa diganti Better Auth nanti | P1 |
 | Tests | BDD untuk flow "tambah anak → lihat jadwal → catat dosis" | writing-tests |
 
