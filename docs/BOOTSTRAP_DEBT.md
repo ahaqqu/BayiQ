@@ -9,10 +9,13 @@ Daftar sementara (suppress) dan perbaikan yang harus dilakukan agar semua gate t
 | Gate | Perintah | Status |
 |---|---|---|
 | Typecheck | `bun run check` | ✅ |
-| Unit/property tests | `bun run test` | ✅ |
+| Unit/property tests | `bun run test` (coverage > 80%) | ✅ |
+| Bundle budget | `bun run size-limit` (< 200 KB gz) | ✅ |
 | Agentic limits | `bun run agentic-limits` | ✅ |
 | Template truth | `bun run truth` | ✅ |
 | Template gate | `bun run template-gate` | ✅ |
+| OpenAPI sync | `bun run openapi:check` | ✅ |
+| E2E/BDD | `bun run e2e` | ✅ |
 
 Catatan: `template-gate` saat ini melaporkan "no sync state found; run update to seed state" dan keluar 0. Ini bukan suppress, melainkan karena belum pernah menjalankan `bun run template-sync update`. Setelah state tercatat, gate akan mulai memeriksa drift template-owned files.
 
@@ -20,29 +23,22 @@ Catatan: `template-gate` saat ini melaporkan "no sync state found; run update to
 
 | Script | Suppress saat ini | Mengapa | Perbaikan nanti |
 |---|---|---|---|
-| `bun run dev` | `echo 'No application yet'` | Belum ada `apps/api` maupun `apps/web` | Ganti dengan build + wrangler dev setelah web/api dibuat. |
-| `bun run build` | `echo 'No application yet'` | Belum ada aplikasi | Ganti dengan build web + prepare worker. |
-| `bun run build:web` | `echo 'No application yet'` | Belum ada `apps/web` | Ganti dengan `bun run --filter @app/web build`. |
-| `bun run size-limit` | `echo 'No application bundle yet'` | Belum ada bundle Vite | Aktifkan kembali setelah `apps/web` punya dist. |
-| `bun run e2e` | `echo 'No E2E tests yet'` | Belum ada fitur BDD | Aktifkan setelah ada user-facing flow + webServer. |
-| `bun run deploy` | `echo 'No application to deploy yet'` | Belum ada worker | Aktifkan setelah `apps/api` siap. |
-| `bun run deploy:staging` | `echo 'No application to deploy yet'` | Belum ada worker | Aktifkan setelah `apps/api` siap. |
-| `bun run deploy:temp` | `echo 'No application to deploy yet'` | Belum ada worker | Aktifkan setelah `apps/api` siap. |
-| `bun run db:migrate:local` | `echo 'No database configured yet'` | Belum ada D1/migrations | Aktifkan setelah `apps/api` punya wrangler.toml + migrations. |
-| `bun run openapi:check` | `echo 'No OpenAPI yet'` | Belum ada routes Hono | Aktifkan setelah `apps/api` punya route + OpenAPI. |
-| `vitest --passWithNoTests` | Mengizinkan tidak ada test | Scaffold kosong, tests di `apps/` belum ada | Hapus `--passWithNoTests` setelah ada minimal test di `apps/**/src`. |
+| `bun run deploy` | `echo 'No application to deploy yet'` | Belum ada worker yang di-deploy | Aktifkan setelah staging deploy pipeline siap (next slice). |
+| `bun run deploy:staging` | `echo 'No application to deploy yet'` | Belum ada worker yang di-deploy | Aktifkan setelah staging deploy pipeline siap (next slice). |
+| `bun run deploy:temp` | `echo 'No application to deploy yet'` | Belum ada worker yang di-deploy | Aktifkan setelah staging deploy pipeline siap (next slice). |
 
 ## Perubahan gate default yang disesuaikan
 
 ### `vitest.config.ts`
 
-- Masih memakai include/exclude asli template (menargetkan `apps/**/src/**/*.test.ts`, `packages/**/src/**/*.test.ts`, `tests/scripts/**/*.test.mjs`).
-- Karena `apps/` masih kosong, test suite saat ini hanya dari `packages/contracts` dan `packages/infra`.
-- Coverage thresholds dimatikan secara implisit karena tidak ada perintah coverage. Nanti harus diaktifkan kembali dengan `vitest run --coverage` dan threshold 80% saat `apps/` sudah ada.
+- Coverage aktif dengan threshold 80% lines/functions/statements dan 70% branches, sesuai DoD.
+- `apps/web/src/components/**` dan `main.tsx` dikecualikan dari coverage unit (UI di-cover oleh Playwright-BDD + axe), konsisten dengan template.
+- `**/client.ts` (barrel) dan `apps/api/src/cf-types.ts` (type-only) dikecualikan.
 
 ### `playwright.config.ts`
 
-- Masih mengacu `http://127.0.0.1:8787` dan webServer wrangler. Saat ini E2E no-op. Nanti disesuaikan setelah API/web dibuat.
+- webServer menjalankan `bun run build` + `wrangler d1 migrations apply bayiq-db --local` + `wrangler dev` di `127.0.0.1:8787`.
+- BDD feature: `tests/features/record-first-dose.feature` — flow "continue → tambah anak → catat dosis → sel selesai → badge 17".
 
 ## Keputusan arsitektur yang sudah direkam
 
@@ -55,40 +51,41 @@ Keputusan berikut sudah disetujui dan direkam di `adr/`:
 | ADR-003 | Local-first CRDT sync to D1 for anonymous sessions | accepted |
 | ADR-004 | Dense schedule table + optional list/card view | accepted |
 | ADR-005 | Build-time JSON i18n files | accepted |
+| ADR-006 | Session lifecycle: create-only, 1-year expiry, hashed token | accepted |
+| ADR-007 | Sync envelope, deletion cascade, record uniqueness | accepted |
+| ADR-008 | Schedule data placement: dose map in contracts, full schedule in web | accepted |
 
 ## Keputusan sengaja yang menyimpang dari template
 
-1. **Hanya `packages/contracts` dan `packages/infra` yang dibuat sekarang**
-   - Dibutuhkan agar `scripts/template-sync/cli.mjs` (yang mengimport logger dari infra dan template-sync contract) dapat berjalan.
-   - `packages/local-first`, `apps/api`, `apps/web` dibiarkan kosong dan akan dibuat saat migrasi prototype.
-   - `packages/contracts/src/index.ts` sengaja tidak mere-export `note`, `sync`, `auth` dari upstream karena sample Notes. Saat `template-sync` nanti merge `packages/contracts`, file ini akan konflik dan dipilih versi BayiQ (tambah BayiQ contracts, buang Notes).
-
-2. **`tests/` hanya berupa direktori kosong**
-   - Dibutuhkan agar `scripts/check-template-truth.mjs` tidak error saat menscan `tests/`.
-   - `tests/scripts/template-sync.test.mjs` belum dicopy karena test tersebut mengasumsikan repo fork nyata dengan upstream; akan ditambahkan saat setup template-sync state selesai, atau diadaptasi untuk scaffold kosong.
-   - Nanti diisi dengan `tests/features/*.feature` dan `tests/steps/*.ts` saat fitur BDD pertama dibuat.
+1. **`packages/contracts` tidak mere-export `note`, `sync`, `auth` dari upstream** — sample Notes dibuang; BayiQ punya `session`, `child`, `record`, `sync`, dan `schedule` (dose map). Saat `template-sync` nanti merge `packages/contracts`, file ini akan konflik dan dipilih versi BayiQ.
+2. **`packages/local-first` di-rebuild untuk Child/Record** — SCHEMA_VERSION 3, migrasi v2 (notes) → v3 (kosong) karena BayiQ belum pernah ship notes ke user nyata.
+3. **`tests/` berisi feature BDD** — `tests/features/record-first-dose.feature` + `tests/steps/record-first-dose.steps.ts`, dijalankan via `bun run e2e`.
 
 ## Utang teknis domain
 
 | Area | Catatan | Milestone target |
 |---|---|---|
 | Domain model | `docs/GLOSSARY.md` dan ADRs sudah dibuat | grill-with-docs ✅ |
-| Contracts | Schema Valibot untuk domain imunisasi — akan dibuat saat implementasi | to-spec / guided-implementation |
-| Local-first | Mekanisme sync untuk catatan imunisasi, bukan Notes | packages/local-first rebuild |
-| DB schema | Migrations D1 untuk session, child, record snapshots | guided-implementation |
-| UI/UX | Migrasi tabel IDAI 2024 ke React + Tailwind + table/list toggle | guided-implementation |
-| i18n | Salin + perbaiki strings `id`/`en` dari `prototype/js/data.js` ke JSON | guided-implementation |
+| Contracts | Schema Valibot untuk session/child/record/sync + dose map | vertical slice ✅ |
+| Local-first | Store Child/Record + LWW merge + tombstones + leader + sync loop | vertical slice ✅ |
+| DB schema | Migrations D1 untuk sessions + sync_snapshots | vertical slice ✅ |
+| UI/UX | Tabel IDAI 2024 + list view + modal dosis + notifikasi + onboarding | vertical slice ✅ |
+| i18n | JSON `id`/`en` di `apps/web/public/locales` | vertical slice ✅ |
 | Auth | Anonymous session saat ini, bisa diganti Better Auth nanti | P1 |
-| Tests | BDD untuk flow "tambah anak → lihat jadwal → catat dosis" | writing-tests |
+| Tests | BDD flow "tambah anak → lihat jadwal → catat dosis" | vertical slice ✅ |
+| Deploy | `deploy`/`deploy:staging`/`deploy:temp` masih no-op | next slice |
 
 ## Cara mengecek utang ini
 
 ```bash
 bun run check
 bun run test
+bun run size-limit
 bun run agentic-limits
 bun run truth
 bun run template-gate
+bun run openapi:check
+bun run e2e
 ```
 
 Jika ada suppress yang belum dihilangkan, gate akan tetap hijau tapi menampilkan pesan placeholder. PR harus mencatat suppress yang masih aktif.

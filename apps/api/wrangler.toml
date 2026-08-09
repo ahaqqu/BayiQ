@@ -1,0 +1,50 @@
+name = "bayiq"
+main = "src/index.ts"
+compatibility_date = "2025-07-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "bayiq-db"
+database_id = "local-bayiq-db"
+migrations_dir = "migrations"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "bayiq-bucket"
+
+[assets]
+binding = "ASSETS"
+directory = "../web/dist"
+not_found_handling = "single-page-application"
+run_worker_first = true
+
+[observability]
+enabled = true
+
+[vars]
+APP_ENV = "production"
+ALLOWED_ORIGINS = "http://localhost:8787,http://127.0.0.1:8787"
+
+[triggers]
+crons = ["0 3 * * *"]
+
+[env.staging]
+name = "bayiq-staging"
+vars = { APP_ENV = "staging", ALLOWED_ORIGINS = "http://localhost:8787" }
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "bayiq-db-staging"
+database_id = "local-bayiq-db-staging"
+migrations_dir = "migrations"
+
+[[env.staging.r2_buckets]]
+binding = "BUCKET"
+bucket_name = "bayiq-bucket-staging"
+
+[env.staging.assets]
+binding = "ASSETS"
+directory = "../web/dist"
+not_found_handling = "single-page-application"
+run_worker_first = true
