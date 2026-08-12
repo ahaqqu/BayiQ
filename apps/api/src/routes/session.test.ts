@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { createApi } from "../app";
-import { createMemoryD1 } from "../lib/memory-d1";
+import { createTestDatabase } from "../lib/memory-d1";
 
-const env = { DB: createMemoryD1(), ASSETS: { fetch } };
+const env = { DB: createTestDatabase(), ASSETS: { fetch } };
 
 describe("POST /v1/session", () => {
   it("creates an anonymous session", async () => {

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { SCHEMA_VERSION } from "@app/local-first";
 import { createApi } from "../app";
-import { createMemoryD1 } from "../lib/memory-d1";
+import { createTestDatabase } from "../lib/memory-d1";
 
 const child = {
   childId: "3f2f1a1e-8b4a-4c2d-9e5f-6a7b8c9d0e1f",
@@ -32,11 +32,11 @@ const envelope = {
 
 describe("POST /v1/sync", () => {
   let api: ReturnType<typeof createApi>;
-  let db: ReturnType<typeof createMemoryD1>;
+  let db: ReturnType<typeof createTestDatabase>;
   let token: string;
 
   beforeEach(async () => {
-    db = createMemoryD1();
+    db = createTestDatabase();
     api = createApi();
     const res = await api.request("/v1/session", { method: "POST" }, { DB: db, ASSETS: { fetch } });
     token = ((await res.json()) as { token: string }).token;

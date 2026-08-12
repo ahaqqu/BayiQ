@@ -19,3 +19,11 @@ export {
   createMemoryRateLimiter,
   type RateLimiter,
 } from "./rate-limit";
+export {
+  createD1DatabaseStore,
+  createMemoryDatabaseStore,
+  type DatabaseStore,
+  type D1Like,
+  type PreparedStatement,
+  type StatementHandler,
+} from "./database-store";

@@ -1,4 +1,5 @@
 import type { Child, Record } from "@app/contracts";
+import type { DatabaseStore } from "@app/infra";
 import {
   aliveChildren,
   aliveRecords,
@@ -7,7 +8,6 @@ import {
   type ChildRow,
   type RecordRow,
 } from "@app/local-first";
-import type { D1Database } from "../cf-types";
 
 export type SyncSnapshot = {
   children: ChildRow[];
@@ -24,7 +24,7 @@ function emptySnapshot(): SyncSnapshot {
  * state (tombstones included), and return the alive rows for the response.
  */
 export async function syncSnapshot(
-  db: D1Database,
+  db: DatabaseStore,
   sessionId: string,
   incoming: { children: Child[]; records: Record[] },
 ): Promise<SyncSnapshot> {

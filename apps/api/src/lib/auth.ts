@@ -1,5 +1,5 @@
 import type { SessionResponse } from "@app/contracts";
-import type { D1Database } from "../cf-types";
+import type { DatabaseStore } from "@app/infra";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const SESSION_TTL_MS = 365 * DAY_MS;
@@ -17,7 +17,7 @@ export async function sha256(input: string): Promise<string> {
  * Create-only anonymous session (ADR-006): mint a random Bearer token, store
  * only its hash, return the raw token exactly once.
  */
-export async function createSession(db: D1Database): Promise<SessionResponse> {
+export async function createSession(db: DatabaseStore): Promise<SessionResponse> {
   const sessionId = crypto.randomUUID();
   const token = crypto.randomUUID() + crypto.randomUUID();
   const tokenHash = await sha256(token);
@@ -34,7 +34,7 @@ export async function createSession(db: D1Database): Promise<SessionResponse> {
 
 /** Resolve a Bearer token to a live session, or null. Touches last_seen_at. */
 export async function resolveSession(
-  db: D1Database,
+  db: DatabaseStore,
   authHeader: string | undefined,
 ): Promise<string | null> {
   if (!authHeader?.startsWith("Bearer ")) return null;
@@ -57,7 +57,7 @@ export async function resolveSession(
 }
 
 /** Delete expired sessions (and their snapshots) — run by the daily cron. */
-export async function cleanupExpiredSessions(db: D1Database): Promise<number> {
+export async function cleanupExpiredSessions(db: DatabaseStore): Promise<number> {
   const expired = await db
     .prepare("SELECT id FROM sessions WHERE expires_at < ?")
     .bind(Date.now())

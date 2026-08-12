@@ -1,18 +1,19 @@
-import type { D1Database, R2Bucket } from "./cf-types";
+import type { DatabaseStore, D1Like } from "@app/infra";
+import type { R2Bucket } from "./cf-types";
 
 export type AppEnvName = "development" | "staging" | "production";
 
 export type WorkerBindings = {
   ASSETS: { fetch: typeof fetch };
   APP_ENV?: string;
-  DB?: D1Database;
+  DB?: D1Like;
   BUCKET?: R2Bucket;
   ALLOWED_ORIGINS?: string;
   SENTRY_DSN?: string;
 };
 
 /** Resolved per-request identity, set by `authGuard` before guarded routes run. */
-export type Authed = { db: D1Database; sessionId: string };
+export type Authed = { db: DatabaseStore; sessionId: string };
 
 /** Hono generics for the whole API: bindings + request-scoped variables. */
 export type ApiEnv = {
@@ -20,7 +21,7 @@ export type ApiEnv = {
   Variables: { correlationId: string; authed: Authed };
 };
 
-export type { D1Database, R2Bucket };
+export type { R2Bucket };
 
 export function resolveEnvName(raw: string | undefined): AppEnvName {
   if (raw === "staging" || raw === "production" || raw === "development") {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { syncSnapshot } from "./sync-repo";
-import { createMemoryD1 } from "./memory-d1";
+import { createTestDatabase } from "./memory-d1";
 
 type ChildOver = Partial<{
   childId: string;
@@ -46,7 +46,7 @@ const record = (over: RecordOver = {}) => ({
 
 describe("syncSnapshot", () => {
   it("persists and returns the first push", async () => {
-    const db = createMemoryD1();
+    const db = createTestDatabase();
     const out = await syncSnapshot(db, "s1", {
       children: [child()],
       records: [record()],
@@ -56,7 +56,7 @@ describe("syncSnapshot", () => {
   });
 
   it("merges a second push with the stored snapshot (LWW)", async () => {
-    const db = createMemoryD1();
+    const db = createTestDatabase();
     await syncSnapshot(db, "s1", {
       children: [child({ name: "Aisha" })],
       records: [record()],
@@ -69,7 +69,7 @@ describe("syncSnapshot", () => {
   });
 
   it("delete wins over a stored alive row", async () => {
-    const db = createMemoryD1();
+    const db = createTestDatabase();
     await syncSnapshot(db, "s1", {
       children: [child()],
       records: [record()],
@@ -83,14 +83,14 @@ describe("syncSnapshot", () => {
   });
 
   it("keeps snapshots isolated per session", async () => {
-    const db = createMemoryD1();
+    const db = createTestDatabase();
     await syncSnapshot(db, "s1", { children: [child()], records: [] });
     const out = await syncSnapshot(db, "s2", { children: [], records: [] });
     expect(out.children).toEqual([]);
   });
 
   it("returns alive rows only, even when tombstones are stored", async () => {
-    const db = createMemoryD1();
+    const db = createTestDatabase();
     await syncSnapshot(db, "s1", {
       children: [child(), child({ childId: "9f8e7d6c-5b4a-4c3d-8e2f-1a0b9c8d7e6f", name: "Budi", updatedAt: 50 })],
       records: [],

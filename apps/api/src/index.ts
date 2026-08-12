@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/cloudflare";
 import {
+  createD1DatabaseStore,
   createMemoryConfigStore,
   createMemoryObjectStore,
   createR2ObjectStore,
@@ -35,7 +36,7 @@ const handler = {
 
   async scheduled(_event: unknown, env: WorkerBindings): Promise<void> {
     if (env.DB) {
-      await cleanupExpiredSessions(env.DB);
+      await cleanupExpiredSessions(createD1DatabaseStore(env.DB));
     }
     const store = env.BUCKET
       ? createR2ObjectStore(env.BUCKET)

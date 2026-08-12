@@ -20,7 +20,7 @@
     "deploy": "echo 'No application to deploy yet. See docs/BOOTSTRAP_DEBT.md'",
     "deploy:staging": "echo 'No application to deploy yet. See docs/BOOTSTRAP_DEBT.md'",
     "deploy:temp": "echo 'No application to deploy yet. See docs/BOOTSTRAP_DEBT.md'",
-    "db:migrate:local": "wrangler d1 migrations apply bayiq-db --local -c apps/api/wrangler.toml",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local -c apps/api/wrangler.toml",
     "template-gate": "bun scripts/template-sync/cli.mjs check",
     "template-sync": "bun scripts/template-sync/cli.mjs"
   },

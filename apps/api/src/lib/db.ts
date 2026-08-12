@@ -1,4 +1,5 @@
-import type { D1Database, WorkerBindings } from "../env";
+import { createD1DatabaseStore, type DatabaseStore } from "@app/infra";
+import type { WorkerBindings } from "../env";
 
 /** Thrown when the D1 binding is absent; `onError` maps it to a 503. */
 export class DbUnboundError extends Error {
@@ -8,9 +9,9 @@ export class DbUnboundError extends Error {
   }
 }
 
-export function requireDb(env: WorkerBindings): D1Database {
+export function requireDb(env: WorkerBindings): DatabaseStore {
   if (!env.DB) {
     throw new DbUnboundError();
   }
-  return env.DB;
+  return createD1DatabaseStore(env.DB);
 }

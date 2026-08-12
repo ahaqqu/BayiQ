@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { createApi } from "./app";
-import { createMemoryD1 } from "./lib/memory-d1";
+import { createTestDatabase } from "./lib/memory-d1";
 
-const env = { DB: createMemoryD1(), ASSETS: { fetch } };
+const env = { DB: createTestDatabase(), ASSETS: { fetch } };
 
 describe("OpenAPI document", () => {
   it("is OpenAPI 3.1 and covers every /v1 route", async () => {
