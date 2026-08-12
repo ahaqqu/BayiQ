@@ -41,6 +41,19 @@ describe("session persistence", () => {
     expect(loadSession()).toBeNull();
   });
 
+  it("tolerates extra fields in stored session (forward-compat)", () => {
+    const withExtra = { ...session, futureField: "abc" };
+    localStorage.setItem("bayiq.session", JSON.stringify(withExtra));
+    const loaded = loadSession();
+    expect(loaded).toEqual(session);
+  });
+
+  it("tolerates a stored session missing essential fields (forward-compat)", () => {
+    const minimal = { sessionId: session.sessionId, token: session.token };
+    localStorage.setItem("bayiq.session", JSON.stringify(minimal));
+    expect(loadSession()).toBeNull();
+  });
+
   it("clears the stored session", () => {
     saveSession(session);
     clearSession();

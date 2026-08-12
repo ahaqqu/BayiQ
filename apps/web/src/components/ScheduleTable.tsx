@@ -102,7 +102,7 @@ export function ScheduleTable({
             key={vaccine.id}
             vaccineId={vaccine.id}
             color={vaccine.color}
-            name={vaccine.name[locale]}
+            name={t(messages, vaccine.nameKey)}
             cols={cols}
             start={start}
             currentCol={currentCol}

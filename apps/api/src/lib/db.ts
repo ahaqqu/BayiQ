@@ -9,6 +9,14 @@ export class DbUnboundError extends Error {
   }
 }
 
+/** Thrown when CAS retry exhaustion occurs during sync; `onError` maps it to a 409. */
+export class SyncConflictError extends Error {
+  constructor() {
+    super("sync_conflict");
+    this.name = "SyncConflictError";
+  }
+}
+
 export function requireDb(env: WorkerBindings): DatabaseStore {
   if (!env.DB) {
     throw new DbUnboundError();

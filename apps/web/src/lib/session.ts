@@ -10,12 +10,21 @@ export function loadSession(): ClientSession | null {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return null;
-    const parsed = v.parse(SessionResponseSchema, JSON.parse(raw));
-    if (parsed.expiresAt < Date.now()) {
+    const parsed = v.parse(v.partial(SessionResponseSchema), JSON.parse(raw));
+    if (
+      parsed.sessionId === undefined ||
+      parsed.token === undefined ||
+      parsed.expiresAt === undefined ||
+      parsed.expiresAt < Date.now()
+    ) {
       localStorage.removeItem(KEY);
       return null;
     }
-    return parsed;
+    return {
+      sessionId: parsed.sessionId,
+      token: parsed.token,
+      expiresAt: parsed.expiresAt,
+    };
   } catch {
     return null;
   }

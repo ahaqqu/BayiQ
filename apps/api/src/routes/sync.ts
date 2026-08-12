@@ -15,7 +15,7 @@ export const syncRoutes = newRouter().post(
         content: { "application/json": { schema: resolver(SyncResponseSchema) } },
       },
       401: { description: "Unauthorized" },
-      409: { description: "Schema mismatch" },
+      409: { description: "Schema mismatch or sync conflict" },
     },
   }),
   validator("json", SyncRequestSchema),

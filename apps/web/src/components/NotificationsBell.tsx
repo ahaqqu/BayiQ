@@ -106,7 +106,7 @@ export function NotificationsBell({
                       />
                       <span className="text-slate-300">
                         <strong>
-                          {item.vaccine.name[locale]} {item.dose.code}
+                          {t(messages, item.vaccine.nameKey)} {item.dose.code}
                         </strong>{" "}
                         {t(messages, KIND_KEY[item.kind])}
                       </span>
