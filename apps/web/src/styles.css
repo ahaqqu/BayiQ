@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+}
+
+/* Schedule table (ADR-004): sticky vaccine column + sticky age header. */
+.schedule-grid {
+  display: grid;
+  font-size: 0.75rem;
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  border-bottom: 1px solid rgb(30 41 59);
+  border-right: 1px solid rgb(30 41 59);
+  padding: 0.25rem;
+  text-align: center;
+}
+
+.cell.corner {
+  background: rgb(15 23 42);
+  color: rgb(148 163 184);
+  font-weight: 600;
+  z-index: 3;
+}
+
+.cell.col-header {
+  background: rgb(15 23 42);
+  color: rgb(148 163 184);
+  font-weight: 600;
+  z-index: 2;
+}
+
+.cell.col-header.current-col {
+  color: rgb(56 189 248);
+}
+
+.cell.row-label {
+  color: rgb(15 23 42);
+  font-weight: 600;
+  justify-content: flex-start;
+  padding-left: 0.5rem;
+  z-index: 1;
+}
+
+.cell.empty {
+  background: rgb(2 6 23);
+}
+
+.cell.empty.current-col {
+  background: rgb(15 23 42);
+}
+
+.cell.dose {
+  cursor: pointer;
+  flex-direction: column;
+  gap: 0.1rem;
+  border: 2px solid transparent;
+  transition: filter 0.15s;
+}
+
+.cell.dose:hover {
+  filter: brightness(1.08);
+}
+
+.cell.dose .dose-label {
+  color: rgb(15 23 42);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.cell.dose .done-check {
+  color: rgb(5 150 105);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.cell.dose.status-done {
+  border-color: rgb(16 185 129);
+}
+
+.cell.dose.status-overdue {
+  border-color: rgb(244 63 94);
+  animation: pulse-overdue 2s ease-in-out infinite;
+}
+
+.cell.dose.status-due {
+  border-color: rgb(245 158 11);
+}
+
+.cell.dose.status-upcoming {
+  border-color: transparent;
+}
+
+.cell.dose.current-col {
+  outline: 2px solid rgb(56 189 248);
+  outline-offset: -2px;
+}
+
+.sticky-left {
+  position: sticky;
+  left: 0;
+}
+
+.sticky-top {
+  position: sticky;
+  top: 0;
+}
+
+@keyframes pulse-overdue {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(244 63 94 / 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgb(244 63 94 / 0);
+  }
+}

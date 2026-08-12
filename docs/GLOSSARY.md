@@ -85,7 +85,40 @@ Shared domain language for BayiQ. Every noun and verb in the implementation must
 
 ---
 
+### Tombstone
+
+**Type:** value object  
+**Context:** local-first  
+**Definition:** A deleted Child or Record row stripped of its payload, carrying only its id, `updatedAt`, and `deleted: true`. Tombstones propagate deletes through sync and are garbage-collected client-side 30 days after a successful sync.  
+**Also known as:** *delete marker*
+
+---
+
+### Clock Floor
+
+**Type:** value object  
+**Context:** local-first  
+**Definition:** The server-raised lower bound for future `updatedAt` stamps, kept in the client store. Writes are never stamped below the floor, so a slow client clock cannot silently lose every LWW merge.  
+**Also known as:** *serverNow*, *Lamport floor*
+
+---
+
+### Grace Window
+
+**Type:** value object  
+**Context:** immunization tracking  
+**Definition:** The tolerance added to a Dose's scheduled month before it counts as overdue: 1 month for doses under 24 months, 3 months at or above. Also the horizon for "upcoming" notifications.  
+**Also known as:** *grace period*
+
+---
+
 ## Verbs
+
+### Continue
+
+**Type:** command  
+**Context:** identity  
+**Definition:** Start a new anonymous Session (or resume an existing one on this device) with one tap and no password.
 
 ### Add Child
 

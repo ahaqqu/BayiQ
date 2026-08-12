@@ -3,7 +3,35 @@ import * as v from "valibot";
 import {
   TemplateSyncManifestSchema,
   TemplateSyncStateSchema,
+  parseTemplateSyncManifest,
+  parseTemplateSyncState,
 } from "./template-sync";
+
+describe("parseTemplateSyncManifest", () => {
+  it("parses a valid manifest", () => {
+    const manifest = {
+      upstream: "https://github.com/ahaqqu/agentic-project-template.git",
+      overwrite: [".agents/"],
+      merge: ["apps/"],
+    };
+    expect(parseTemplateSyncManifest(manifest)).toEqual(manifest);
+  });
+
+  it("throws on an invalid manifest", () => {
+    expect(() => parseTemplateSyncManifest({ upstream: "" })).toThrow();
+  });
+});
+
+describe("parseTemplateSyncState", () => {
+  it("parses a valid state", () => {
+    const state = { ref: "main", commit: "abc123" };
+    expect(parseTemplateSyncState(state)).toEqual(state);
+  });
+
+  it("throws on an invalid state", () => {
+    expect(() => parseTemplateSyncState({ ref: "" })).toThrow();
+  });
+});
 
 describe("TemplateSyncManifestSchema", () => {
   it("accepts a valid manifest", () => {
