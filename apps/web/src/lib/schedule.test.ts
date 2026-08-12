@@ -45,7 +45,7 @@ describe("SCHEDULE integrity", () => {
 
 describe("findVaccine / findDose", () => {
   it("finds a vaccine by id", () => {
-    expect(findVaccine("hepb")?.name.en).toBe("Hepatitis B");
+    expect(findVaccine("hepb")?.nameKey).toBe("vaccine.hepb.name");
     expect(findVaccine("nope")).toBeUndefined();
   });
 

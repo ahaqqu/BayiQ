@@ -28,7 +28,7 @@ export function ListView({
               className="h-3 w-3 rounded-full"
               style={{ background: vaccine.color }}
             />
-            {vaccine.name[locale]}
+            {t(messages, vaccine.nameKey)}
           </h3>
           <div className="flex flex-col gap-1">
             {vaccine.doses.map((dose) => {

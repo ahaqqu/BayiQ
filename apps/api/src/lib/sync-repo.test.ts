@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { syncSnapshot } from "./sync-repo";
+import { SyncConflictError } from "./db";
 import { createTestDatabase } from "../test-utils/memory-d1";
 
 type ChildOver = Partial<{
@@ -102,5 +103,32 @@ describe("syncSnapshot", () => {
     expect(out.children.map((c) => c.childId)).toEqual([
       "3f2f1a1e-8b4a-4c2d-9e5f-6a7b8c9d0e1f",
     ]);
+  });
+
+  it("throws SyncConflictError when CAS retries are exhausted", async () => {
+    const db = createTestDatabase();
+    const conflictDb = new Proxy(db, {
+      get(target, prop) {
+        if (prop === "prepare") {
+          return (sql: string) => {
+            const stmt = target.prepare(sql);
+            if (sql.includes("INSERT INTO sync_snapshots")) {
+              return {
+                ...stmt,
+                bind: (...args: unknown[]) => ({
+                  ...stmt.bind(...(args as [])),
+                  run: async () => ({ changes: 0 }),
+                }),
+              };
+            }
+            return stmt;
+          };
+        }
+        return Reflect.get(target, prop);
+      },
+    });
+    await expect(
+      syncSnapshot(conflictDb, "s1", { children: [child()], records: [record()] }),
+    ).rejects.toBeInstanceOf(SyncConflictError);
   });
 });

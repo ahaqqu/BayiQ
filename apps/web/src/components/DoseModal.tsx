@@ -52,14 +52,14 @@ export function DoseModal({
   };
 
   return (
-    <Modal title={`${vaccine.name[locale]} — ${dose.code}`} onClose={onClose}>
+    <Modal title={`${t(messages, vaccine.nameKey)} — ${dose.code}`} onClose={onClose}>
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <span
             className="rounded-full px-2 py-0.5 text-xs font-medium"
             style={{ background: vaccine.color }}
           >
-            {vaccine.name[locale]}
+            {t(messages, vaccine.nameKey)}
           </span>
           <span className="text-sm font-semibold">{dose.code}</span>
           <StatusBadge status={status} />
@@ -75,7 +75,7 @@ export function DoseModal({
           <h4 className="mb-1 text-sm font-semibold">
             {t(messages, "explanation")}
           </h4>
-          <p className="text-sm text-slate-300">{vaccine.prevents[locale]}</p>
+          <p className="text-sm text-slate-300">{t(messages, vaccine.preventsKey)}</p>
         </div>
         <form onSubmit={submit} className="flex flex-col gap-3">
           <label className="flex flex-col gap-1 text-sm text-slate-300">

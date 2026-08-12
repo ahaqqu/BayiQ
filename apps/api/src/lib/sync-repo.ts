@@ -8,6 +8,7 @@ import {
   type ChildRow,
   type RecordRow,
 } from "@app/local-first";
+import { SyncConflictError } from "./db";
 
 export type SyncSnapshot = {
   children: ChildRow[];
@@ -71,5 +72,5 @@ export async function syncSnapshot(
       records: aliveRecords(merged.records),
     };
   }
-  return emptySnapshot();
+  throw new SyncConflictError();
 }

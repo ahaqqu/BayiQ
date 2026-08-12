@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/cloudflare";
 import { createLogger } from "@app/infra";
 import type { Context } from "hono";
 import type { ApiEnv } from "../env";
-import { DbUnboundError } from "./db";
+import { DbUnboundError, SyncConflictError } from "./db";
 
 /**
  * Typed error dispatch. Handler throws land here; unexpected errors are
@@ -19,6 +19,10 @@ export function onError(err: unknown, c: Context<ApiEnv>): Response {
   if (err instanceof DbUnboundError) {
     logger.error("request.db_unbound", { path: c.req.path });
     return c.json({ error: "db_unbound" }, 503);
+  }
+  if (err instanceof SyncConflictError) {
+    logger.warn("request.sync_conflict", { path: c.req.path });
+    return c.json({ error: "sync_conflict" }, 409);
   }
   logger.error("request.unhandled", {
     path: c.req.path,
