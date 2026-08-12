@@ -83,7 +83,10 @@ export function createTestDatabase(): DatabaseStore & {
       run: (b) => {
         const cutoff = Number(b[0]);
         for (const [id, s] of sessions) {
-          if (s.expiresAt < cutoff) sessions.delete(id);
+          if (s.expiresAt < cutoff) {
+            sessions.delete(id);
+            snapshots.delete(id);
+          }
         }
       },
     },
