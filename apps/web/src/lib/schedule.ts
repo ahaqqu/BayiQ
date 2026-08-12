@@ -242,8 +242,6 @@ export const SCHEDULE: ScheduleVaccine[] = VACCINES.map((v) => ({
   }),
 }));
 
-export type AgeColumnLabel = { id: string; en: string };
-
 export const AGE_COLUMNS: { months: number }[] = AGE_MONTHS.map((months) => ({
   months,
 }));

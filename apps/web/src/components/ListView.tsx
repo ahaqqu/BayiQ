@@ -1,6 +1,6 @@
 import type { ChildRow, RecordRow } from "@app/local-first";
 import { t, useLocale } from "../lib/i18n";
-import { ageColumnLabel, AGE_COLUMNS, SCHEDULE } from "../lib/schedule";
+import { ageColumnLabel, SCHEDULE } from "../lib/schedule";
 import { doseStatus, findRecord } from "../lib/status";
 import { StatusBadge } from "./index";
 
