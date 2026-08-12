@@ -65,11 +65,13 @@ export function createTestDatabase(): DatabaseStore & {
           .filter(([, s]) => s.expiresAt < Number(b[0]))
           .map(([id]) => ({ id })),
     },
-    "DELETE FROM sync_snapshots WHERE session_id = ?": {
-      run: (b) => void snapshots.delete(String(b[0])),
-    },
-    "DELETE FROM sessions WHERE id = ?": {
-      run: (b) => void sessions.delete(String(b[0])),
+    "DELETE FROM sync_snapshots WHERE session_id IN (SELECT id FROM sessions WHERE expires_at < ?)": {
+      run: (b) => {
+        const cutoff = Number(b[0]);
+        for (const [id, s] of sessions) {
+          if (s.expiresAt < cutoff) snapshots.delete(id);
+        }
+      },
     },
     "SELECT payload FROM sync_snapshots WHERE session_id = ?": {
       first: (b) => {
@@ -77,13 +79,38 @@ export function createTestDatabase(): DatabaseStore & {
         return row ? { payload: row.payload } : null;
       },
     },
-    "INSERT INTO sync_snapshots (session_id, payload, server_now) VALUES (?, ?, ?) ON CONFLICT(session_id) DO UPDATE SET payload = excluded.payload, server_now = excluded.server_now":
+    "DELETE FROM sessions WHERE expires_at < ?": {
+      run: (b) => {
+        const cutoff = Number(b[0]);
+        for (const [id, s] of sessions) {
+          if (s.expiresAt < cutoff) {
+            sessions.delete(id);
+            snapshots.delete(id);
+          }
+        }
+      },
+    },
+    "SELECT payload, server_now as serverNow FROM sync_snapshots WHERE session_id = ?": {
+      first: (b) => {
+        const row = snapshots.get(String(b[0]));
+        return row ? { payload: row.payload, serverNow: row.serverNow } : null;
+      },
+    },
+    "INSERT INTO sync_snapshots (session_id, payload, server_now) VALUES (?, ?, ?) ON CONFLICT(session_id) DO UPDATE SET payload = excluded.payload, server_now = excluded.server_now WHERE sync_snapshots.server_now = ?":
       {
-        run: (b) =>
-          void snapshots.set(String(b[0]), {
+        run: (b) => {
+          const id = String(b[0]);
+          const existing = snapshots.get(id);
+          const seenAt = b[3];
+          if (existing && seenAt !== null && existing.serverNow !== Number(seenAt)) {
+            return { changes: 0 };
+          }
+          snapshots.set(id, {
             payload: String(b[1]),
             serverNow: Number(b[2]),
-          }),
+          });
+          return { changes: 1 };
+        },
       },
   };
 

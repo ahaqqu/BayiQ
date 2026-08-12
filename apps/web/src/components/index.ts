@@ -12,4 +12,5 @@ export { ScheduleTable } from "./ScheduleTable";
 export { StatusBadge } from "./StatusBadge";
 export { SwUpdatePrompt } from "./SwUpdatePrompt";
 export { useStoreInit } from "./use-store-init";
+export { useSync } from "./use-sync";
 export type { DoseStatus } from "../lib/status";

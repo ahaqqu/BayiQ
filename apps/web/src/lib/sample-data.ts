@@ -1,9 +1,5 @@
 import type { BayiQStore } from "./store";
-
-/** Local-timezone ISO date (avoids UTC day-shift flakiness). */
-export function isoLocal(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
+import { isoLocal } from "./date";
 
 /**
  * First-class onboarding path (spec §Web app): a 5-month-old child with

@@ -1,6 +1,6 @@
 import * as v from "valibot";
 import { describe, expect, it } from "vitest";
-import { RecordSchema } from "./record";
+import { RecordSchema, SyncRecordSchema } from "./record";
 
 const valid = {
   recordId: "3f2f1a1e-8b4a-4c2d-9e5f-6a7b8c9d0e1f",
@@ -56,5 +56,34 @@ describe("RecordSchema", () => {
     expect(() =>
       v.parse(RecordSchema, { ...valid, childId: "nope" }),
     ).toThrow();
+  });
+});
+
+describe("SyncRecordSchema", () => {
+  it("accepts a tombstone with empty doseId and givenDate", () => {
+    const tombstone = {
+      ...valid,
+      doseId: "",
+      givenDate: "",
+      deleted: true,
+    };
+    expect(v.parse(SyncRecordSchema, tombstone)).toEqual(tombstone);
+  });
+
+  it("rejects a live row with empty doseId", () => {
+    expect(() =>
+      v.parse(SyncRecordSchema, { ...valid, doseId: "" }),
+    ).toThrow();
+  });
+
+  it("rejects a live row with non-ISO givenDate", () => {
+    expect(() =>
+      v.parse(SyncRecordSchema, { ...valid, givenDate: "yesterday" }),
+    ).toThrow();
+  });
+
+  it("accepts a live row without the deleted key", () => {
+    const { deleted: _omit, ...live } = valid;
+    expect(v.parse(SyncRecordSchema, live)).toEqual(live);
   });
 });

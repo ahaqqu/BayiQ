@@ -10,9 +10,10 @@ import { DbUnboundError } from "./db";
  */
 export function onError(err: unknown, c: Context<ApiEnv>): Response {
   Sentry.captureException(err);
+  const config = c.get("config");
   const logger = createLogger({
     service: "api",
-    env: c.env.APP_ENV ?? "development",
+    env: config?.envName ?? "development",
     correlationId: c.get("correlationId"),
   });
   if (err instanceof DbUnboundError) {

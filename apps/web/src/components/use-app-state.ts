@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useStore } from "../lib/store";
-import { ageFocusForMonths, ageMonths, doseStatus } from "../lib/status";
+import { ageFocusForMonths, ageMonths, doseStatus, findRecord } from "../lib/status";
 import { findDoseById } from "../lib/schedule";
 import { onOpenDose } from "../lib/dose-events";
 
@@ -59,9 +59,7 @@ export function useAppState(store: Parameters<typeof useStore>[0]) {
     if (!doseId || !child) return null;
     const found = findDoseById(doseId);
     if (!found) return null;
-    const record = records.find(
-      (r) => r.childId === child.childId && r.doseId === doseId,
-    );
+    const record = findRecord(records, child.childId, doseId);
     return {
       child,
       vaccine: found.vaccine,

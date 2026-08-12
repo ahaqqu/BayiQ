@@ -16,7 +16,8 @@ export const healthRoutes = newRouter().get(
     },
   }),
   (c) => {
-    const ctx = createRequestContext(c.env.APP_ENV, c.get("correlationId"));
+    const config = c.get("config");
+    const ctx = createRequestContext(config?.envName, c.get("correlationId"));
     const body: HealthResponse = {
       status: "ok",
       env: ctx.envName,

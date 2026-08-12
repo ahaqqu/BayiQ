@@ -1,6 +1,6 @@
 import * as v from "valibot";
 import { describe, expect, it } from "vitest";
-import { ChildSchema } from "./child";
+import { ChildSchema, SyncChildSchema } from "./child";
 
 const valid = {
   childId: "3f2f1a1e-8b4a-4c2d-9e5f-6a7b8c9d0e1f",
@@ -49,5 +49,34 @@ describe("ChildSchema", () => {
 
   it("rejects a non-boolean deleted", () => {
     expect(() => v.parse(ChildSchema, { ...valid, deleted: 1 })).toThrow();
+  });
+});
+
+describe("SyncChildSchema", () => {
+  it("accepts a tombstone with empty name and dateOfBirth", () => {
+    const tombstone = {
+      ...valid,
+      name: "",
+      dateOfBirth: "",
+      deleted: true,
+    };
+    expect(v.parse(SyncChildSchema, tombstone)).toEqual(tombstone);
+  });
+
+  it("rejects a live row with empty name", () => {
+    expect(() =>
+      v.parse(SyncChildSchema, { ...valid, name: "" }),
+    ).toThrow();
+  });
+
+  it("rejects a live row with non-ISO dateOfBirth", () => {
+    expect(() =>
+      v.parse(SyncChildSchema, { ...valid, dateOfBirth: "09/03/2026" }),
+    ).toThrow();
+  });
+
+  it("accepts a live row without the deleted key", () => {
+    const { deleted: _omit, ...live } = valid;
+    expect(v.parse(SyncChildSchema, live)).toEqual(live);
   });
 });

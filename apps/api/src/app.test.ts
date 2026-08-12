@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createApi } from "./app";
-import { createTestDatabase } from "./lib/memory-d1";
+import { createTestDatabase } from "./test-utils/memory-d1";
 
 const env = { DB: createTestDatabase(), ASSETS: { fetch } };
 

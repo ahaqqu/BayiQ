@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { createSession, resolveSession, sha256 } from "./auth";
-import { createTestDatabase } from "./memory-d1";
+import { cleanupExpiredSessions, createSession, resolveSession, sha256 } from "./auth";
+import { createTestDatabase } from "../test-utils/memory-d1";
 
 describe("sha256", () => {
   it("produces a 64-char hex digest", async () => {
@@ -67,5 +67,26 @@ describe("resolveSession", () => {
     const session = await createSession(db);
     (db as unknown as { _expire: (id: string) => void })._expire(session.sessionId);
     expect(await resolveSession(db, `Bearer ${session.token}`)).toBeNull();
+  });
+});
+
+describe("cleanupExpiredSessions", () => {
+  it("deletes expired sessions and their snapshots in bulk", async () => {
+    const db = createTestDatabase();
+    const s1 = await createSession(db);
+    const s2 = await createSession(db);
+    (db as unknown as { _expire: (id: string) => void })._expire(s1.sessionId);
+    (db as unknown as { _expire: (id: string) => void })._expire(s2.sessionId);
+    const count = await cleanupExpiredSessions(db);
+    expect(count).toBe(2);
+    expect(await resolveSession(db, `Bearer ${s1.token}`)).toBeNull();
+    expect(await resolveSession(db, `Bearer ${s2.token}`)).toBeNull();
+  });
+
+  it("returns 0 when no sessions are expired", async () => {
+    const db = createTestDatabase();
+    await createSession(db);
+    const count = await cleanupExpiredSessions(db);
+    expect(count).toBe(0);
   });
 });

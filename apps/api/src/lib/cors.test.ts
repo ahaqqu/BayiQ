@@ -10,6 +10,10 @@ describe("resolveCorsOrigin", () => {
     );
   });
 
+  it("defaults to empty string with no allowlist and no Origin header", () => {
+    expect(resolveCorsOrigin(undefined, "http://localhost:8787/v1/health", [])).toBe("");
+  });
+
   it("echoes an allowlisted origin", () => {
     expect(
       resolveCorsOrigin("https://bayiq.example.com", "http://localhost:8787/v1/health", allowlist),

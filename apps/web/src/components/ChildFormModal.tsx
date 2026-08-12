@@ -1,9 +1,8 @@
 import { useState } from "react";
 import type { ChildRow } from "@app/local-first";
 import { t, useLocale } from "../lib/i18n";
+import { today } from "../lib/date";
 import { Button, Input, Modal } from "./ui";
-
-const today = () => new Date().toISOString().slice(0, 10);
 
 /** Add/edit child form (name, date of birth, optional sex). */
 export function ChildFormModal({

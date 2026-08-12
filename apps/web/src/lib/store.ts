@@ -13,6 +13,7 @@ import {
 } from "@app/local-first";
 import { migrateToLatest } from "@app/local-first/client";
 import { createContext, useContext, useSyncExternalStore } from "react";
+import { findRecord } from "./status";
 
 const DB_NAME = "bayiq-store";
 const STORE = "snapshot";
@@ -159,9 +160,7 @@ export class BayiQStore {
    * dose that already has a record edits it in place.
    */
   async upsertRecord(input: RecordInput): Promise<RecordRow> {
-    const existing = this.state.records.find(
-      (r) => r.childId === input.childId && r.doseId === input.doseId,
-    );
+    const existing = findRecord(this.state.records, input.childId, input.doseId);
     const row: RecordRow = {
       recordId: existing?.recordId ?? crypto.randomUUID(),
       childId: input.childId,

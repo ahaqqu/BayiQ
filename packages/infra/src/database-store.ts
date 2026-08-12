@@ -51,8 +51,8 @@ export function createMemoryDatabaseStore(
           return stmt;
         },
         async run() {
-          dispatch(sql, "run", binds);
-          return { success: true };
+          const out = dispatch(sql, "run", binds);
+          return out ?? { success: true };
         },
         async first<T>() {
           return dispatch(sql, "first", binds) as T | null;

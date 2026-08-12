@@ -10,8 +10,7 @@ import {
   type Messages,
 } from "../lib/i18n";
 import { useStore, useStoreCtx } from "../lib/store";
-import { useSync } from "./use-sync";
-import { NotificationsBell, SwUpdatePrompt } from "./index";
+import { NotificationsBell, SwUpdatePrompt, useSync } from "./index";
 
 /**
  * App shell: owns the selected locale and the top bar (language toggle,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { syncSnapshot } from "./sync-repo";
-import { createTestDatabase } from "./memory-d1";
+import { createTestDatabase } from "../test-utils/memory-d1";
 
 type ChildOver = Partial<{
   childId: string;

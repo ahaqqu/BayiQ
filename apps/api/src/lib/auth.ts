@@ -56,16 +56,18 @@ export async function resolveSession(
   return row.sessionId;
 }
 
-/** Delete expired sessions (and their snapshots) — run by the daily cron. */
+/** Delete expired sessions (and their snapshots) — run by the daily cron.
+ * The FK cascade on sync_snapshots handles snapshot deletion automatically. */
 export async function cleanupExpiredSessions(db: DatabaseStore): Promise<number> {
   const expired = await db
     .prepare("SELECT id FROM sessions WHERE expires_at < ?")
     .bind(Date.now())
     .all<{ id: string }>();
-  const ids = (expired.results ?? []).map((r) => r.id);
-  for (const id of ids) {
-    await db.prepare("DELETE FROM sync_snapshots WHERE session_id = ?").bind(id).run();
-    await db.prepare("DELETE FROM sessions WHERE id = ?").bind(id).run();
-  }
-  return ids.length;
+  const count = (expired.results ?? []).length;
+  if (count === 0) return 0;
+  await db
+    .prepare("DELETE FROM sessions WHERE expires_at < ?")
+    .bind(Date.now())
+    .run();
+  return count;
 }
