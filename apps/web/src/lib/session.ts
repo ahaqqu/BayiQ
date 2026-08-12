@@ -10,7 +10,7 @@ export function loadSession(): ClientSession | null {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as ClientSession;
+    const parsed = v.parse(SessionResponseSchema, JSON.parse(raw));
     if (parsed.expiresAt < Date.now()) {
       localStorage.removeItem(KEY);
       return null;

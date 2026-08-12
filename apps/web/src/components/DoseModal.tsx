@@ -1,10 +1,8 @@
 import { useState } from "react";
 import type { ChildRow, RecordRow } from "@app/local-first";
 import { formatAge, t, useLocale } from "../lib/i18n";
-import { findVaccine, AGE_COLUMNS } from "../lib/schedule";
-import { Button, Input, Modal, StatusBadge, Textarea } from "./index";
-
-const today = () => new Date().toISOString().slice(0, 10);
+import { ageColumnLabel, findVaccine, today } from "../lib/schedule";
+import { Button, Input, Modal, StatusBadge, Textarea, type DoseStatus } from "./index";
 
 /** Dose detail modal: status, explanation, and the record form. */
 export function DoseModal({
@@ -22,7 +20,7 @@ export function DoseModal({
   vaccineId: string;
   doseId: string;
   record?: RecordRow | undefined;
-  status: import("./index").DoseStatus;
+  status: DoseStatus;
   childAgeMonths: number;
   onSave: (input: {
     givenDate: string;
@@ -41,7 +39,7 @@ export function DoseModal({
 
   if (!vaccine || !dose) return null;
 
-  const ageLabel = AGE_COLUMNS.find((c) => c.months === dose.months)?.label;
+  const ageLabel = ageColumnLabel(messages, locale, dose.months);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,7 +65,7 @@ export function DoseModal({
           <StatusBadge status={status} />
         </div>
         <p className="text-sm text-slate-400">
-          {t(messages, "scheduledAt")}: {ageLabel?.[locale]} · {child.name} (
+          {t(messages, "scheduledAt")}: {ageLabel} · {child.name} (
           {formatAge(messages, childAgeMonths)})
         </p>
         {dose.repeat && (

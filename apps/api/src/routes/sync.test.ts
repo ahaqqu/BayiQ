@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { SCHEMA_VERSION } from "@app/local-first";
 import { createApi } from "../app";
-import { createTestDatabase } from "../lib/memory-d1";
+import { createTestDatabase } from "../test-utils/memory-d1";
 
 const child = {
   childId: "3f2f1a1e-8b4a-4c2d-9e5f-6a7b8c9d0e1f",

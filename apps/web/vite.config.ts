@@ -13,7 +13,7 @@ export default defineConfig({
       manifest: {
         name: "BayiQ",
         short_name: "BayiQ",
-        description: "Jadwal & catatan imunisasi anak",
+        description: "BayiQ — Child immunization schedule & records / Jadwal & catatan imunisasi anak",
         theme_color: "#0f172a",
         background_color: "#0f172a",
         display: "standalone",

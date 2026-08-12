@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SCHEDULE, AGE_COLUMNS, VACCINES, findVaccine, findDoseById } from "./schedule";
+import { SCHEDULE, AGE_COLUMNS, VACCINES, ageColumnLabel, findVaccine, findDoseById } from "./schedule";
 import { DOSE_MAP } from "@app/contracts";
 
 describe("SCHEDULE integrity", () => {
@@ -33,6 +33,13 @@ describe("SCHEDULE integrity", () => {
   it("age column labels cover 0–18 years", () => {
     expect(AGE_COLUMNS[0]?.months).toBe(0);
     expect(AGE_COLUMNS[25]?.months).toBe(216);
+  });
+
+  it("ageColumnLabel formats birth, months, and years", () => {
+    const msgs = { ageBirth: "Birth", ageMonth: "mo", ageYear: "yr" };
+    expect(ageColumnLabel(msgs, "en", 0)).toBe("Birth");
+    expect(ageColumnLabel(msgs, "en", 3)).toBe("3 mo");
+    expect(ageColumnLabel(msgs, "en", 24)).toBe("2 yr");
   });
 });
 

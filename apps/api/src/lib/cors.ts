@@ -1,11 +1,11 @@
 import { cors } from "hono/cors";
 import type { Context, Next } from "hono";
-import { allowedOrigins, type ApiEnv } from "../env";
+import type { ApiEnv } from "../env";
 
 /**
  * Pure CORS origin resolution. Returns the value for
  * Access-Control-Allow-Origin:
- * - no Origin header (same-origin navigations) → first allowlisted origin, or "*"
+ * - no Origin header (same-origin navigations) → first allowlisted origin, or ""
  * - allowlisted origin → echo it
  * - worker's own host (SPA + API same origin) → echo it
  * - anything else → "" (browser blocks)
@@ -15,7 +15,7 @@ export function resolveCorsOrigin(
   requestUrl: string,
   allowlist: string[],
 ): string {
-  if (!origin) return allowlist[0] ?? "*";
+  if (!origin) return allowlist[0] ?? "";
   if (allowlist.includes(origin)) return origin;
   try {
     if (origin === new URL(requestUrl).origin) return origin;
@@ -25,9 +25,9 @@ export function resolveCorsOrigin(
   return "";
 }
 
-/** CORS middleware; allowlist comes from env per request. */
+/** CORS middleware; allowlist comes from the resolved ServerConfig. */
 export function corsGuard(c: Context<ApiEnv>, next: Next) {
-  const origins = allowedOrigins(c.env.ALLOWED_ORIGINS);
+  const origins = c.get("config")?.allowedOrigins ?? [];
   return cors({
     origin: (origin) => resolveCorsOrigin(origin, c.req.url, origins),
     allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],

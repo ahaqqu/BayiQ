@@ -3,6 +3,15 @@ import { AGE_COLUMNS, SCHEDULE, type ScheduleDose, type ScheduleVaccine } from "
 
 export type DoseStatus = "done" | "overdue" | "due" | "upcoming";
 
+/** Find a record by (childId, doseId) — shared lookup used across views. */
+export function findRecord(
+  records: RecordRow[],
+  childId: string,
+  doseId: string,
+): RecordRow | undefined {
+  return records.find((r) => r.childId === childId && r.doseId === doseId);
+}
+
 /** Schedule table window (prototype UX): 11 visible age columns. */
 export const WINDOW_SIZE = 11;
 export const WINDOW_PREV = 3;

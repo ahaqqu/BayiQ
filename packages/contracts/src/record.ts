@@ -21,13 +21,21 @@ export const RecordSchema = v.object({
 export type Record = v.InferOutput<typeof RecordSchema>;
 
 /**
- * Sync request item. Unlike `RecordSchema`, doseId/givenDate may be empty:
- * deleted records sync as payload-stripped tombstones (ADR-007).
+ * Sync request item. Tombstones (`deleted: true`) may carry
+ * payload-stripped empty doseId/givenDate (ADR-007). Live rows must
+ * satisfy the strict `RecordSchema` fields (non-empty doseId, ISO date).
  */
-export const SyncRecordSchema = v.object({
-  ...RecordSchema.entries,
-  doseId: v.pipe(v.string(), v.maxLength(64)),
-  givenDate: v.pipe(v.string(), v.maxLength(10)),
-});
+export const SyncRecordSchema = v.pipe(
+  v.object({
+    ...RecordSchema.entries,
+    doseId: v.pipe(v.string(), v.maxLength(64)),
+    givenDate: v.pipe(v.string(), v.maxLength(10)),
+  }),
+  v.check((input) => {
+    if (input.deleted === true) return true;
+    if (input.doseId.length < 1) return false;
+    return /^\d{4}-\d{2}-\d{2}$/.test(input.givenDate) && !isNaN(new Date(input.givenDate).getTime());
+  }, "live rows require non-empty doseId and ISO givenDate"),
+);
 
 export type SyncRecord = v.InferOutput<typeof SyncRecordSchema>;

@@ -1,7 +1,7 @@
 import type { ChildRow, RecordRow } from "@app/local-first";
 import { t, useLocale } from "../lib/i18n";
-import { AGE_COLUMNS, SCHEDULE } from "../lib/schedule";
-import { doseStatus } from "../lib/status";
+import { ageColumnLabel, AGE_COLUMNS, SCHEDULE } from "../lib/schedule";
+import { doseStatus, findRecord } from "../lib/status";
 import { StatusBadge } from "./index";
 
 /** List/card view of the schedule (ADR-004): one card per vaccine. */
@@ -32,13 +32,9 @@ export function ListView({
           </h3>
           <div className="flex flex-col gap-1">
             {vaccine.doses.map((dose) => {
-              const record = records.find(
-                (r) => r.childId === child.childId && r.doseId === dose.doseId,
-              );
+              const record = findRecord(records, child.childId, dose.doseId);
               const status = doseStatus(child, dose, record);
-              const ageLabel = AGE_COLUMNS.find(
-                (c) => c.months === dose.months,
-              )?.label[locale];
+              const ageLabel = ageColumnLabel(messages, locale, dose.months);
               return (
                 <button
                   key={dose.doseId}

@@ -1,4 +1,7 @@
 import { AGE_MONTHS, DOSE_MAP, type DoseRef } from "@app/contracts";
+import { t, type Locale, type Messages } from "./i18n";
+import { today } from "./date";
+export { today };
 
 /**
  * Full IDAI 2024 schedule (ADR-002, ADR-008): vaccine metadata (bilingual
@@ -239,25 +242,22 @@ export const SCHEDULE: ScheduleVaccine[] = VACCINES.map((v) => ({
   }),
 }));
 
-export const AGE_COLUMNS: { months: number; label: Bilingual }[] = AGE_MONTHS.map(
-  (months) => ({
-    months,
-    label: {
-      id:
-        months === 0
-          ? "Lahir"
-          : months < 24
-            ? `${months} bln`
-            : `${Math.floor(months / 12)} th`,
-      en:
-        months === 0
-          ? "Birth"
-          : months < 24
-            ? `${months} mo`
-            : `${Math.floor(months / 12)} yr`,
-    },
-  }),
-);
+export type AgeColumnLabel = { id: string; en: string };
+
+export const AGE_COLUMNS: { months: number }[] = AGE_MONTHS.map((months) => ({
+  months,
+}));
+
+/** Format an age column label for the given locale using i18n messages. */
+export function ageColumnLabel(
+  messages: Messages,
+  locale: Locale,
+  months: number,
+): string {
+  if (months === 0) return t(messages, "ageBirth");
+  if (months < 24) return `${months} ${t(messages, "ageMonth")}`;
+  return `${Math.floor(months / 12)} ${t(messages, "ageYear")}`;
+}
 
 export function findVaccine(vaccineId: string): ScheduleVaccine | undefined {
   return SCHEDULE.find((v) => v.id === vaccineId);

@@ -1,12 +1,35 @@
 import { secureHeaders } from "hono/secure-headers";
 import type { Hono } from "hono";
-import type { ApiEnv } from "../env";
+import { allowedOrigins, resolveEnvName, type ApiEnv, type ServerConfig } from "../env";
 import { corsGuard } from "./cors";
 import { allowRequest } from "./rate-limit-mw";
 
 /** Installs the cross-cutting middleware every route shares. */
 export function applyMiddleware(api: Hono<ApiEnv>): void {
-  api.use("*", secureHeaders());
+  api.use(
+    "*",
+    secureHeaders({
+      contentSecurityPolicy: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "blob:"],
+        fontSrc: ["'self'", "data:"],
+        connectSrc: ["'self'", "https://sentry.io"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+        frameAncestors: ["'none'"],
+      },
+    }),
+  );
+  api.use("*", async (c, next) => {
+    const config: ServerConfig = {
+      envName: resolveEnvName(c.env.APP_ENV),
+      allowedOrigins: allowedOrigins(c.env.ALLOWED_ORIGINS),
+    };
+    c.set("config", config);
+    await next();
+  });
   api.use("*", corsGuard);
   api.use("*", async (c, next) => {
     const id = c.req.header("X-Correlation-Id") ?? crypto.randomUUID();

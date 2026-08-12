@@ -62,10 +62,17 @@ export async function cleanupExpiredSessions(db: DatabaseStore): Promise<number>
     .prepare("SELECT id FROM sessions WHERE expires_at < ?")
     .bind(Date.now())
     .all<{ id: string }>();
-  const ids = (expired.results ?? []).map((r) => r.id);
-  for (const id of ids) {
-    await db.prepare("DELETE FROM sync_snapshots WHERE session_id = ?").bind(id).run();
-    await db.prepare("DELETE FROM sessions WHERE id = ?").bind(id).run();
-  }
-  return ids.length;
+  const count = (expired.results ?? []).length;
+  if (count === 0) return 0;
+  await db
+    .prepare(
+      "DELETE FROM sync_snapshots WHERE session_id IN (SELECT id FROM sessions WHERE expires_at < ?)",
+    )
+    .bind(Date.now())
+    .run();
+  await db
+    .prepare("DELETE FROM sessions WHERE expires_at < ?")
+    .bind(Date.now())
+    .run();
+  return count;
 }

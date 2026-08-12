@@ -15,10 +15,20 @@ export type WorkerBindings = {
 /** Resolved per-request identity, set by `authGuard` before guarded routes run. */
 export type Authed = { db: DatabaseStore; sessionId: string };
 
+/** Resolved server config, set once by `applyMiddleware` from bindings. */
+export type ServerConfig = {
+  envName: string;
+  allowedOrigins: string[];
+};
+
 /** Hono generics for the whole API: bindings + request-scoped variables. */
 export type ApiEnv = {
   Bindings: WorkerBindings;
-  Variables: { correlationId: string; authed: Authed };
+  Variables: {
+    correlationId: string;
+    config: ServerConfig;
+    authed: Authed;
+  };
 };
 
 export type { R2Bucket };
@@ -32,7 +42,7 @@ export function resolveEnvName(raw: string | undefined): AppEnvName {
 
 export function allowedOrigins(raw: string | undefined): string[] {
   if (!raw || raw.trim() === "") {
-    return ["http://localhost:8787", "http://127.0.0.1:8787"];
+    return [];
   }
   return raw.split(",").map((s) => s.trim()).filter(Boolean);
 }

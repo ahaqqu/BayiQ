@@ -17,14 +17,21 @@ export const ChildSchema = v.object({
 export type Child = v.InferOutput<typeof ChildSchema>;
 
 /**
- * Sync request item. Unlike `ChildSchema`, name/dateOfBirth may be empty:
- * deleted children sync as payload-stripped tombstones (ADR-007), and the
- * wire contract must accept them.
+ * Sync request item. Tombstones (`deleted: true`) may carry
+ * payload-stripped empty name/dateOfBirth (ADR-007). Live rows must
+ * satisfy the strict `ChildSchema` fields (non-empty name, ISO date).
  */
-export const SyncChildSchema = v.object({
-  ...ChildSchema.entries,
-  name: v.pipe(v.string(), v.maxLength(100)),
-  dateOfBirth: v.pipe(v.string(), v.maxLength(10)),
-});
+export const SyncChildSchema = v.pipe(
+  v.object({
+    ...ChildSchema.entries,
+    name: v.pipe(v.string(), v.maxLength(100)),
+    dateOfBirth: v.pipe(v.string(), v.maxLength(10)),
+  }),
+  v.check((input) => {
+    if (input.deleted === true) return true;
+    if (input.name.length < 1) return false;
+    return /^\d{4}-\d{2}-\d{2}$/.test(input.dateOfBirth) && !isNaN(new Date(input.dateOfBirth).getTime());
+  }, "live rows require non-empty name and ISO dateOfBirth"),
+);
 
 export type SyncChild = v.InferOutput<typeof SyncChildSchema>;

@@ -20,7 +20,9 @@ describe("allowedOrigins", () => {
     ]);
   });
 
-  it("defaults localhost", () => {
-    expect(allowedOrigins(undefined)[0]).toContain("localhost");
+  it("returns empty array for empty or undefined", () => {
+    expect(allowedOrigins(undefined)).toEqual([]);
+    expect(allowedOrigins("")).toEqual([]);
+    expect(allowedOrigins("  ")).toEqual([]);
   });
 });

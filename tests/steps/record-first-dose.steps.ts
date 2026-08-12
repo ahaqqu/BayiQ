@@ -1,12 +1,9 @@
 import { createBdd } from "playwright-bdd";
 import { expect } from "@playwright/test";
 import { AxeBuilder } from "@axe-core/playwright";
+import { isoLocal } from "../../apps/web/src/lib/date";
 
 const { Given, When, Then } = createBdd();
-
-/** Local-timezone ISO date (avoids UTC day-shift flakiness). */
-const isoLocal = (d: Date) =>
-  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
 Given("I open BayiQ", async ({ page }) => {
   await page.goto("/");

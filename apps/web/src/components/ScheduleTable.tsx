@@ -1,7 +1,7 @@
 import type { ChildRow, RecordRow } from "@app/local-first";
 import { t, useLocale } from "../lib/i18n";
-import { AGE_COLUMNS, SCHEDULE } from "../lib/schedule";
-import { ageFocusStart, ageMonths, doseStatus, WINDOW_PREV, WINDOW_SHIFT, WINDOW_SIZE } from "../lib/status";
+import { ageColumnLabel, AGE_COLUMNS, SCHEDULE } from "../lib/schedule";
+import { ageFocusStart, ageMonths, doseStatus, findRecord, WINDOW_PREV, WINDOW_SHIFT, WINDOW_SIZE } from "../lib/status";
 import { Button } from "./ui";
 
 const STATUS_CLASS = {
@@ -52,7 +52,7 @@ export function ScheduleTable({
           ‹ {t(messages, "prevCols")}
         </Button>
         <span className="text-slate-400">
-          {cols[0]?.label[locale]} – {cols[cols.length - 1]?.label[locale]}
+          {ageColumnLabel(messages, locale, cols[0]?.months ?? 0)} – {ageColumnLabel(messages, locale, cols[cols.length - 1]?.months ?? 0)}
         </span>
         <Button
           variant="ghost"
@@ -93,7 +93,7 @@ export function ScheduleTable({
               key={c.months}
               className={`cell col-header sticky-top ${i === currentCol ? "current-col" : ""}`}
             >
-              {c.label[locale]}
+              {ageColumnLabel(messages, locale, c.months)}
             </div>
           );
         })}
@@ -163,9 +163,7 @@ function ScheduleRow({
             />
           );
         }
-        const record = records.find(
-          (r) => r.childId === child.childId && r.doseId === dose.doseId,
-        );
+        const record = findRecord(records, child.childId, dose.doseId);
         const status = doseStatus(child, dose, record);
         return (
           <button
