@@ -17,6 +17,7 @@ export const syncRoutes = newRouter().post(
       400: { description: "Invalid request body (validation error)" },
       401: { description: "Unauthorized" },
       409: { description: "Schema mismatch or sync conflict" },
+      500: { description: "Internal server error (e.g. D1 write contention under concurrent load)" },
     },
   }),
   validator("json", SyncRequestSchema),
