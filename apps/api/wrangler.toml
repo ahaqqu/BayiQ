@@ -6,7 +6,11 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "DB"
-database_id = "local-bayiq-db"
+# Sentinel: replace with the UUID from `wrangler d1 create` before first
+# remote deploy. Local dev uses `preview_database_id` below; remote deploy
+# injects the real UUID via a CI secret (see README §Deploy, ADR-009).
+database_id = "replace-me-with-your-d1-uuid"
+preview_database_id = "local-bayiq-db"
 migrations_dir = "migrations"
 
 [[r2_buckets]]
@@ -36,7 +40,10 @@ vars = { APP_ENV = "staging", ALLOWED_ORIGINS = "" }
 [[env.staging.d1_databases]]
 binding = "DB"
 database_name = "bayiq-db-staging"
-database_id = "local-bayiq-db-staging"
+# Sentinel: replace with the staging UUID from `wrangler d1 create` before
+# first remote deploy. Local dev uses `preview_database_id` below.
+database_id = "replace-me-with-your-d1-uuid-staging"
+preview_database_id = "local-bayiq-db-staging"
 migrations_dir = "migrations"
 
 [[env.staging.r2_buckets]]

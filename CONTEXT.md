@@ -6,13 +6,13 @@ Mental model for agents working in BayiQ.
 
 BayiQ is a bilingual (Indonesian/English) child immunization tracker, bootstrapped from the `agentic-project-template`.
 
-The original HTML/CSS/JS prototype has been archived under `prototype/` and will be migrated into a TypeScript/React Cloudflare stack in later tickets. The repository currently contains the project scaffold only — no running application.
+The original HTML/CSS/JS prototype has been archived under `prototype/` and migrated into a TypeScript/React Cloudflare stack. The repository contains a working immunization vertical slice: bilingual schedule, child/record local-first store with CRDT sync, D1-backed API, and BDD coverage.
 
 ## Layout
 
 - `prototype/` — original HTML/CSS/JS prototype with IDAI 2024 schedule data and in-browser `localStorage` persistence.
-- `apps/` — empty workspace awaiting the API and web applications.
-- `packages/` — minimal shared packages (`contracts`, `infra`) needed by the template scripts; `local-first` to be rebuilt for immunization records.
+- `apps/` — the API (`apps/api`, Hono on Cloudflare Workers + D1) and web app (`apps/web`, React PWA).
+- `packages/` — shared packages (`contracts`, `infra`, `local-first` rebuilt for immunization records).
 - `docs/` — architecture, runbooks, and bootstrap guidance inherited from the template (see `docs/BOOTSTRAP_DEBT.md` for current suppressions).
 - `.agents/skills/` — agent workflow skills inherited from the template.
 - `.github/workflows/` — CI, vulnerability scan, and template-sync workflows inherited from the template.
@@ -20,12 +20,12 @@ The original HTML/CSS/JS prototype has been archived under `prototype/` and will
 
 ## Gates
 
-`bun run check` · `bun run test` · `bun run agentic-limits` · `bun run truth` · `bun run template-gate`
+`bun run check` · `bun run test` · `bun run size-limit` · `bun run agentic-limits` · `bun run truth` · `bun run template-gate` · `bun run openapi:check` · `bun run e2e`
 
-Application-specific gates (`build`, `size-limit`, `e2e`, `deploy`) are currently no-ops while the first vertical slice is being designed.
+All gates are active. Deploy scripts (`deploy`, `deploy:staging`, `deploy:temp`) run `wrangler deploy` against the production/staging environments — see `adr/ADR-009.md` for the D1 `database_id` sentinel + CI secret injection mechanism.
 
 ## Next milestone
 
-Migrate the immunization schedule and child-record flows from `prototype/` into a local-first React PWA backed by a Hono API on Cloudflare Workers + D1.
+Hardening and additional vertical slices beyond the immunization tracker core.
 
 
