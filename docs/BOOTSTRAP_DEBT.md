@@ -17,15 +17,18 @@ Daftar sementara (suppress) dan perbaikan yang harus dilakukan agar semua gate t
 | OpenAPI sync | `bun run openapi:check` | ✅ |
 | E2E/BDD | `bun run e2e` | ✅ |
 
-Catatan: `template-gate` saat ini melaporkan "no sync state found; run update to seed state" dan keluar 0. Ini bukan suppress, melainkan karena belum pernah menjalankan `bun run template-sync update`. Setelah state tercatat, gate akan mulai memeriksa drift template-owned files.
+Catatan: `template-gate` sekarang genuinely memeriksa drift template-owned files setelah state di-seed dengan `bun run template-sync seed` (lihat `adr/ADR-009.md`). Sebelum seeding, gate keluar 0 dengan "no sync state found".
 
-## Suppress / no-op sementara
+## Sudah diselesaikan
 
-| Script | Suppress saat ini | Mengapa | Perbaikan nanti |
-|---|---|---|---|
-| `bun run deploy` | `echo 'No application to deploy yet'` | Belum ada worker yang di-deploy | Aktifkan setelah staging deploy pipeline siap (next slice). |
-| `bun run deploy:staging` | `echo 'No application to deploy yet'` | Belum ada worker yang di-deploy | Aktifkan setelah staging deploy pipeline siap (next slice). |
-| `bun run deploy:temp` | `echo 'No application to deploy yet'` | Belum ada worker yang di-deploy | Aktifkan setelah staging deploy pipeline siap (next slice). |
+| Item | Perbaikan | Lihat |
+|---|---|---|
+| Workflow D1 names pointed at upstream template (`agentic-template-db`) | Workflows sekarang menggunakan D1 binding `DB` (resolved by wrangler from `wrangler.toml`) | issue #28, template PR #53 |
+| `wrangler.toml` placeholder `database_id` blocked remote deploy | Sentinel `replace-me-with-your-d1-uuid` + `preview_database_id` untuk local; real UUID injected via CI secret (`sed`) at deploy time | ADR-009 |
+| `deploy` / `deploy:staging` / `deploy:temp` no-op stubs | Scripts sekarang menjalankan `wrangler deploy` langsung (production / staging / temporary) | issue #28 |
+| `template-gate` green but not enforcing drift | State di-seed dengan `bun run template-sync seed`; gate sekarang genuinely memeriksa drift | issue #28, template PR #53 |
+
+Tidak ada suppress aktif untuk deploy pipeline.
 
 ## Perubahan gate default yang disesuaikan
 
@@ -73,7 +76,7 @@ Keputusan berikut sudah disetujui dan direkam di `adr/`:
 | i18n | JSON `id`/`en` di `apps/web/public/locales` | vertical slice ✅ |
 | Auth | Anonymous session saat ini, bisa diganti Better Auth nanti | P1 |
 | Tests | BDD flow "tambah anak → lihat jadwal → catat dosis" | vertical slice ✅ |
-| Deploy | `deploy`/`deploy:staging`/`deploy:temp` masih no-op | next slice |
+| Deploy | `deploy`/`deploy:staging`/`deploy:temp` aktif (wrangler deploy); D1 sentinel + CI secret injection | ✅ issue #28 |
 
 ## Cara mengecek utang ini
 
@@ -88,4 +91,4 @@ bun run openapi:check
 bun run e2e
 ```
 
-Jika ada suppress yang belum dihilangkan, gate akan tetap hijau tapi menampilkan pesan placeholder. PR harus mencatat suppress yang masih aktif.
+Jika ada suppress yang belum dihilangkan, gate akan tetap hijau tapi menampilkan pesan placeholder. Saat ini tidak ada suppress aktif untuk deploy pipeline — semua gate dijalankan dengan sungguhan.

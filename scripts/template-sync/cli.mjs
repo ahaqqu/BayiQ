@@ -15,6 +15,7 @@ const usage = (log) => {
       init: "add and fetch the upstream remote (run once per project)",
       check: "gate: fail if template-owned files drifted from the last synced ref",
       gate: "alias for check",
+      seed: "record sync state against an upstream ref without merging (--ref=X to pin)",
       update: "merge the latest template release (--ref=X to pin)",
       finish: "complete an update after resolving merge conflicts",
     },
@@ -22,7 +23,7 @@ const usage = (log) => {
 };
 
 function parseArgs(argv) {
-  const flags = { ref: null, branch: null };
+  const flags = { ref: null, branch: null, noCommit: false };
   let command = "";
   for (const a of argv) {
     if (a === "--help" || a === "-h") {
@@ -32,6 +33,8 @@ function parseArgs(argv) {
       flags.ref = a.slice("--ref=".length);
     } else if (a.startsWith("--branch=")) {
       flags.branch = a.slice("--branch=".length);
+    } else if (a === "--no-commit") {
+      flags.noCommit = true;
     } else if (!a.startsWith("-")) {
       if (command) throw new Error(`Unexpected positional argument: ${a}`);
       command = a;
@@ -74,6 +77,7 @@ function main() {
       init: commands.cmdInit,
       check: commands.cmdCheck,
       gate: commands.cmdCheck,
+      seed: () => commands.cmdSeed(flags),
       update: () => commands.cmdUpdate(flags),
       finish: commands.cmdFinish,
     };
