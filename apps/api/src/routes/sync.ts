@@ -14,6 +14,7 @@ export const syncRoutes = newRouter().post(
         description: "Merged",
         content: { "application/json": { schema: resolver(SyncResponseSchema) } },
       },
+      400: { description: "Invalid request body (validation error)" },
       401: { description: "Unauthorized" },
       409: { description: "Schema mismatch or sync conflict" },
     },
