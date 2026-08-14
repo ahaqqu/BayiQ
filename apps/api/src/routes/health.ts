@@ -13,6 +13,7 @@ export const healthRoutes = newRouter().get(
         description: "OK",
         content: { "application/json": { schema: resolver(HealthResponseSchema) } },
       },
+      429: { description: "Rate limited (too many requests from this IP)" },
     },
   }),
   (c) => {

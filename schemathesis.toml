@@ -1,6 +1,15 @@
 # Schemathesis configuration
 # https://docs.schemathesis.io
 
+# Throttle fuzz requests to 100/min. The app's in-memory rate limiter
+# (apps/api/src/lib/rate-limit-mw.ts) allows 120 req/min per IP; without
+# throttling, Schemathesis's concurrent fuzz load trips it and returns
+# 429s on every route, producing false failures (undocumented_status_code,
+# rejected_schema_compliant, accepted_schema_violating). 100/m keeps
+# Schemathesis under the limiter while still exercising the API. The 429
+# is documented in every route's OpenAPI responses.
+rate-limit = "100/m"
+
 # Suppress unsupported_method: Cloudflare Workers edge returns 405 for
 # TRACE/CONNECT without the RFC 9110-required Allow header. This is
 # Cloudflare edge behavior, not an app bug — we cannot control the response
