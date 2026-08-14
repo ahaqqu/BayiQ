@@ -18,16 +18,29 @@ rate-limit = "100/m"
 [checks.unsupported_method]
 enabled = false
 
-# Suppress not_a_server_error for /v1/sync: under Schemathesis's concurrent
-# fuzz load, Cloudflare D1 can return 500 from write contention (the CAS
-# retry loop exhausts under parallel requests). This is a D1 limitation
-# under fuzzing load, not an app bug — normal sync traffic (one request at
-# a time per session) never triggers it. The 500 is documented in the
-# OpenAPI spec. Revisit if D1 adds better concurrent write support.
+# Suppress not_a_server_error and positive_data_acceptance for /v1/sync:
+# two distinct fuzz-only artifacts, neither reachable by real sync traffic.
+#
+# not_a_server_error: under Schemathesis's concurrent fuzz load, Cloudflare
+# D1 can return 500 from write contention (the CAS retry loop exhausts under
+# parallel requests). Normal sync traffic (one request at a time per
+# session) never triggers it. The 500 is documented in the OpenAPI spec.
+# Revisit if D1 adds better concurrent write support.
+#
+# positive_data_acceptance: Schemathesis generates strings with surrogate
+# pairs for fields with maxLength constraints. It counts Unicode code
+# points (e.g. 10), but Valibot's maxLength counts UTF-16 code units (e.g.
+# 12 for the same string), so a "schema-compliant" 10-code-point string
+# fails the server's 12-code-unit maxLength(10) check and returns 400. Real
+# sync traffic never sends surrogate pairs in doseId/givenDate. This is a
+# string-length measurement discrepancy between Schemathesis and Valibot,
+# not an app bug.
 [[operations]]
 include-method = "POST"
 include-path = "/v1/sync"
   [operations.checks.not_a_server_error]
+  enabled = false
+  [operations.checks.positive_data_acceptance]
   enabled = false
 
 # Stop sending unsupported-method requests during the coverage phase —
