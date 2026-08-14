@@ -12,6 +12,7 @@ export const sessionRoutes = newRouter().post(
         description: "Session",
         content: { "application/json": { schema: resolver(SessionResponseSchema) } },
       },
+      429: { description: "Rate limited (too many requests from this IP)" },
     },
   }),
   async (c) => {
