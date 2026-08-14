@@ -16,11 +16,14 @@ export function onError(err: unknown, c: Context<ApiEnv>): Response {
     env: config?.envName ?? "development",
     correlationId: c.get("correlationId"),
   });
-  if (err instanceof DbUnboundError) {
+  // Use err.name instead of instanceof for cross-realm safety (Cloudflare
+  // Workers may load multiple module instances, breaking instanceof checks).
+  const errName = err instanceof Error ? err.name : "";
+  if (errName === "DbUnboundError" || err instanceof DbUnboundError) {
     logger.error("request.db_unbound", { path: c.req.path });
     return c.json({ error: "db_unbound" }, 503);
   }
-  if (err instanceof SyncConflictError) {
+  if (errName === "SyncConflictError" || err instanceof SyncConflictError) {
     logger.warn("request.sync_conflict", { path: c.req.path });
     return c.json({ error: "sync_conflict" }, 409);
   }
