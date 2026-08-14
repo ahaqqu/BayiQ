@@ -24,18 +24,29 @@ export type Record = v.InferOutput<typeof RecordSchema>;
  * Sync request item. Tombstones (`deleted: true`) may carry
  * payload-stripped empty doseId/givenDate (ADR-007). Live rows must
  * satisfy the strict `RecordSchema` fields (non-empty doseId, ISO date).
+ *
+ * Expressed as a `v.variant` on `deleted` rather than a `v.check` so the
+ * constraint is visible to JSON Schema / OpenAPI generation: the live
+ * branch carries `minLength(1)` on `doseId` and `format: date` on
+ * `givenDate`, while the tombstone branch allows empty strings. A `v.check`
+ * is invisible to `@valibot/to-json-schema` (no converter, silently dropped
+ * under `errorMode: "ignore"`), which let Schemathesis generate live rows
+ * with empty fields that the server rejected — a spec/impl mismatch.
  */
-export const SyncRecordSchema = v.pipe(
+export const SyncRecordSchema = v.variant("deleted", [
+  // Tombstone: deleted === true, payload stripped (empty doseId/givenDate OK)
   v.object({
     ...RecordSchema.entries,
+    deleted: v.literal(true),
     doseId: v.pipe(v.string(), v.maxLength(64)),
     givenDate: v.pipe(v.string(), v.maxLength(10)),
   }),
-  v.check((input) => {
-    if (input.deleted === true) return true;
-    if (input.doseId.length < 1) return false;
-    return /^\d{4}-\d{2}-\d{2}$/.test(input.givenDate) && !isNaN(new Date(input.givenDate).getTime());
-  }, "live rows require non-empty doseId and ISO givenDate"),
-);
+  // Live row: deleted is false or absent, strict fields required (inherited
+  // from RecordSchema.entries — minLength(1) on doseId, isoDate on givenDate)
+  v.object({
+    ...RecordSchema.entries,
+    deleted: v.optional(v.literal(false)),
+  }),
+]);
 
 export type SyncRecord = v.InferOutput<typeof SyncRecordSchema>;

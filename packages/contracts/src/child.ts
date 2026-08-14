@@ -20,18 +20,25 @@ export type Child = v.InferOutput<typeof ChildSchema>;
  * Sync request item. Tombstones (`deleted: true`) may carry
  * payload-stripped empty name/dateOfBirth (ADR-007). Live rows must
  * satisfy the strict `ChildSchema` fields (non-empty name, ISO date).
+ *
+ * Expressed as a `v.variant` on `deleted` rather than a `v.check` so the
+ * constraint is visible to JSON Schema / OpenAPI generation — see the
+ * note on `SyncRecordSchema` for the rationale.
  */
-export const SyncChildSchema = v.pipe(
+export const SyncChildSchema = v.variant("deleted", [
+  // Tombstone: deleted === true, payload stripped (empty name/dateOfBirth OK)
   v.object({
     ...ChildSchema.entries,
+    deleted: v.literal(true),
     name: v.pipe(v.string(), v.maxLength(100)),
     dateOfBirth: v.pipe(v.string(), v.maxLength(10)),
   }),
-  v.check((input) => {
-    if (input.deleted === true) return true;
-    if (input.name.length < 1) return false;
-    return /^\d{4}-\d{2}-\d{2}$/.test(input.dateOfBirth) && !isNaN(new Date(input.dateOfBirth).getTime());
-  }, "live rows require non-empty name and ISO dateOfBirth"),
-);
+  // Live row: deleted is false or absent, strict fields required (inherited
+  // from ChildSchema.entries — minLength(1) on name, isoDate on dateOfBirth)
+  v.object({
+    ...ChildSchema.entries,
+    deleted: v.optional(v.literal(false)),
+  }),
+]);
 
 export type SyncChild = v.InferOutput<typeof SyncChildSchema>;

@@ -76,6 +76,17 @@ describe("SyncRecordSchema", () => {
     ).toThrow();
   });
 
+  it("rejects a live row with empty doseId and givenDate (fuzzer-found)", () => {
+    expect(() =>
+      v.parse(SyncRecordSchema, {
+        ...valid,
+        doseId: "",
+        givenDate: "",
+        deleted: false,
+      }),
+    ).toThrow();
+  });
+
   it("rejects a live row with non-ISO givenDate", () => {
     expect(() =>
       v.parse(SyncRecordSchema, { ...valid, givenDate: "yesterday" }),

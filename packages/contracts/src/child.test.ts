@@ -69,6 +69,17 @@ describe("SyncChildSchema", () => {
     ).toThrow();
   });
 
+  it("rejects a live row with empty name and dateOfBirth (fuzzer-found)", () => {
+    expect(() =>
+      v.parse(SyncChildSchema, {
+        ...valid,
+        name: "",
+        dateOfBirth: "",
+        deleted: false,
+      }),
+    ).toThrow();
+  });
+
   it("rejects a live row with non-ISO dateOfBirth", () => {
     expect(() =>
       v.parse(SyncChildSchema, { ...valid, dateOfBirth: "09/03/2026" }),
