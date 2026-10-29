@@ -64,7 +64,7 @@ Remote deploy requires a one-time provisioning step and GitHub secrets.
 
    | Variable | Value |
    |---|---|
-   | `PROD_URL` | Your production URL (e.g. `https://bayiq.<subdomain>.workers.dev`) |
+   | `PROD_URL` | Production URL — `https://bayiq.ahaqqu.com` (Worker Custom Domain) |
    | `STAGING_URL` | Your staging URL (e.g. `https://bayiq-staging.<subdomain>.workers.dev`) |
 
 After this, the deploy pipeline is fully automated. The provision workflow is idempotent — safe to re-run.
@@ -79,6 +79,23 @@ After this, the deploy pipeline is fully automated. The provision workflow is id
 bun run deploy            # production (GitHub Actions: Deploy production workflow)
 bun run deploy:staging    # staging (GitHub Actions: Staging workflow)
 ```
+
+### Custom domain
+
+Production is served at `https://bayiq.ahaqqu.com`, declared in `apps/api/wrangler.toml`:
+
+```toml
+[[routes]]
+pattern = "bayiq.ahaqqu.com"
+custom_domain = true
+```
+
+`wrangler deploy` creates and owns the DNS record and certificate for that hostname, so it cannot drift onto a stale origin — the failure mode behind the earlier HTTP 522 (see `adr/ADR-010.md`). Two prerequisites:
+
+- The `ahaqqu.com` zone must be in the **same Cloudflare account** as the Worker.
+- The deploy token needs **Workers Routes:Edit** alongside Workers Scripts:Edit.
+
+The `*.workers.dev` URL keeps serving the same Worker; the custom domain is what `PROD_URL` and the deploy smoke test use.
 
 ## Prototype
 

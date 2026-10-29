@@ -22,7 +22,7 @@ The original HTML/CSS/JS prototype has been archived under `prototype/` and migr
 
 `bun run check` · `bun run test` · `bun run size-limit` · `bun run agentic-limits` · `bun run truth` · `bun run template-gate` · `bun run openapi:check` · `bun run e2e`
 
-All gates are active. Deploy scripts (`deploy`, `deploy:staging`, `deploy:temp`) run `wrangler deploy` against the production/staging environments — see `adr/ADR-009.md` for the D1 `database_id` sentinel + CI secret injection mechanism.
+All gates are active. Deploy scripts (`deploy`, `deploy:staging`, `deploy:temp`) run `wrangler deploy` against the production/staging environments — see `adr/ADR-009.md` for the D1 `database_id` sentinel + CI secret injection mechanism. Production is served at `https://bayiq.ahaqqu.com` through a Worker Custom Domain declared in `apps/api/wrangler.toml` (see `adr/ADR-010.md`); staging stays on `*.workers.dev`.
 
 ## Next milestone
 

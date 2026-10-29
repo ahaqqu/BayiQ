@@ -30,6 +30,14 @@ enabled = true
 APP_ENV = "production"
 ALLOWED_ORIGINS = ""
 
+# Production Custom Domain. Cloudflare owns the DNS record and certificate for
+# this hostname, so a deploy can never leave it pointing at a stale origin
+# (see adr/ADR-010.md). Requires the ahaqqu.com zone in the same account as the
+# Worker and a deploy token with Workers Routes:Edit.
+[[routes]]
+pattern = "bayiq.ahaqqu.com"
+custom_domain = true
+
 [triggers]
 crons = ["0 3 * * *"]
 
